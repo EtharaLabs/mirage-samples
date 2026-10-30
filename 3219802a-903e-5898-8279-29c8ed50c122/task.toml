@@ -19,7 +19,7 @@ version = "1.0.0"
 name = "teresa/3219802a-903e-5898-8279-29c8ed50c122"
 uuid_v5 = "3219802a-903e-5898-8279-29c8ed50c122"
 authors = [
-    { name = "Parashar79924", email = "parashar79924@gmail.com" },
+    { name = "Parashar79924", email = "krishnansh.vyas@ethara.ai" },
 ]
 keywords = ["python", "issue_localization"]
 
