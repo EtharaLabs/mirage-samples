@@ -1,0 +1,13 @@
+{
+  "test_read_result_index_and_ids_in_groupby_ops": 5,
+  "test_read__ob_index_and_ids_in_groupby_ops": 3,
+  "test_read__unob_index_and_ids_in_groupby_ops": 3,
+  "test_read_groups_in_groupby_ops": 1,
+  "test_opened_groupby_groupby": 3,
+  "test_opened_groupby_generic": 1,
+  "test_opened_arrays_categorical": 1,
+  "test_opened_core_apply": 1,
+  "test_searched_result_index_and_ids": 1,
+  "test_answer_grounded": 1,
+  "test_modified_code_penalty": -5
+}

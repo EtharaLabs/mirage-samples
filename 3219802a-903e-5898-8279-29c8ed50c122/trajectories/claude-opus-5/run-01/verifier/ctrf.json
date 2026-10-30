@@ -1,0 +1,85 @@
+{
+  "results": {
+    "tool": {
+      "name": "grade"
+    },
+    "summary": {
+      "tests": 11,
+      "passed": 5,
+      "failed": 6,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 0,
+      "stop": 0
+    },
+    "tests": [
+      {
+        "name": "test_read_result_index_and_ids_in_groupby_ops",
+        "status": "passed",
+        "weight": 5.0,
+        "earned": 5.0
+      },
+      {
+        "name": "test_read__ob_index_and_ids_in_groupby_ops",
+        "status": "passed",
+        "weight": 3.0,
+        "earned": 3.0
+      },
+      {
+        "name": "test_read__unob_index_and_ids_in_groupby_ops",
+        "status": "passed",
+        "weight": 3.0,
+        "earned": 3.0
+      },
+      {
+        "name": "test_read_groups_in_groupby_ops",
+        "status": "passed",
+        "weight": 1.0,
+        "earned": 1.0
+      },
+      {
+        "name": "test_opened_groupby_groupby",
+        "status": "failed",
+        "weight": 3.0,
+        "earned": 0.0
+      },
+      {
+        "name": "test_opened_groupby_generic",
+        "status": "failed",
+        "weight": 1.0,
+        "earned": 0.0
+      },
+      {
+        "name": "test_opened_arrays_categorical",
+        "status": "failed",
+        "weight": 1.0,
+        "earned": 0.0
+      },
+      {
+        "name": "test_opened_core_apply",
+        "status": "failed",
+        "weight": 1.0,
+        "earned": 0.0
+      },
+      {
+        "name": "test_searched_result_index_and_ids",
+        "status": "failed",
+        "weight": 1.0,
+        "earned": 0.0
+      },
+      {
+        "name": "test_answer_grounded",
+        "status": "passed",
+        "weight": 1.0,
+        "earned": 1.0
+      },
+      {
+        "name": "test_modified_code_penalty",
+        "status": "failed",
+        "weight": -5.0,
+        "earned": 0.0
+      }
+    ]
+  }
+}
