@@ -2,9 +2,9 @@
 
 # mirage: samples
 
-<p align="center"><b>The samples lane: 0 of 30 Harbor task bundles.</b></p>
+<p align="center"><b>The samples lane: 1 of 30 Harbor task bundles.</b></p>
 
-<p align="center"><a href="#summary"><img src="https://img.shields.io/badge/bundles-0_of_30-845EF7" alt="bundles: 0 of 30"></a> <a href="#evidence-status"><img src="https://img.shields.io/badge/sealed-0-845EF7" alt="sealed: 0"></a> <a href="#difficulty-tiers"><img src="https://img.shields.io/badge/difficulty-measured-845EF7" alt="difficulty: measured"></a></p>
+<p align="center"><a href="#summary"><img src="https://img.shields.io/badge/bundles-1_of_30-845EF7" alt="bundles: 1 of 30"></a> <a href="#evidence-status"><img src="https://img.shields.io/badge/sealed-0-845EF7" alt="sealed: 0"></a> <a href="#difficulty-tiers"><img src="https://img.shields.io/badge/difficulty-measured-845EF7" alt="difficulty: measured"></a></p>
 
 <p align="center"><sub><a href="#abstract">Abstract</a> | <a href="#summary">Summary</a> | <a href="#difficulty-tiers">Difficulty tiers</a> | <a href="#evidence-status">Evidence status</a> | <a href="#coverage">Coverage</a> | <a href="#dataset-structure">Dataset structure</a> | <a href="#verification-and-quality-assurance">Verification and quality assurance</a> | <a href="#reproduction">Reproduction</a> | <a href="#cite">Cite</a> | <a href="#license">License</a> | <a href="#contact">Contact</a></sub></p>
 
@@ -18,11 +18,11 @@ Each bundle is one Harbor task in a directory named by its content-derived uuid5
 
 | Property | Value |
 | --- | --- |
-| Bundles | 0 of 30 |
-| Sealed | 0 of 0 |
-| Registrations | none |
-| Audit verdicts | none |
-| Harbor schema | none |
+| Bundles | 1 of 30 |
+| Sealed | 0 of 1 |
+| Registrations | unregistered (1) |
+| Audit verdicts | none (1) |
+| Harbor schema | 1.4 (1) |
 
 ## Difficulty tiers
 
@@ -32,19 +32,40 @@ Difficulty is measured by the signed pilot alone and never declared in a bundle,
 
 The verdict is the audit outcome recorded at the sealed digest, and `none` means no verdict has landed for that digest yet. Only an authoring run removes a bundle from this lane, so removal waits for the next one.
 
+| uuid | Verdict | Sealed digest | Stream |
+| --- | --- | --- | --- |
+| 3219802a-903e-5898-8279-29c8ed50c122 | none | absent | none |
+
 ## Coverage
 
-No resident bundle declares a keyword.
+| Keyword | Bundles |
+| --- | --- |
+| issue_localization | 1 |
+| python | 1 |
 
 ## Dataset structure
 
-No bundle is resident under `samples/`.
+| Bundle | Task | Keywords | Registration | Sealed at | Tier |
+| --- | --- | --- | --- | --- | --- |
+| [`3219802a-903e-5898-8279-29c8ed50c122`](3219802a-903e-5898-8279-29c8ed50c122/) | `teresa/3219802a-903e-5898-8279-29c8ed50c122` | issue_localization, python | unregistered | unsealed | - |
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#131a33","primaryTextColor":"#e8ecff","primaryBorderColor":"#845EF7","lineColor":"#22d3ee","fontFamily":"monospace"}}}%%
+flowchart LR
+    bundle["&lt;uuid&gt;/"]
+    bundle --> n0["task.toml<br/>runner manifest"]
+    bundle --> n1["instruction.md<br/>objective the agent reads"]
+    bundle --> n2["environment/<br/>agent sandbox image"]
+    bundle --> n3["tests/<br/>verifier, hidden from the agent"]
+    bundle --> n4["solution/<br/>private oracle"]
+    bundle --> n5["trajectories/"]
+```
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#131a33","primaryTextColor":"#e8ecff","primaryBorderColor":"#845EF7","lineColor":"#22d3ee","fontFamily":"monospace"}}}%%
 flowchart LR
     staging["staging/"]
-    staging --> samples["samples/<br/>0 of 30"]
+    staging --> samples["samples/<br/>1 of 30"]
     samples --> delivery["delivery/<br/>0 of 10000"]
     delivery --> stock["stock/<br/>0 of 10000"]
 ```
@@ -60,21 +81,21 @@ Each bundle directory is a complete Harbor task: `task.toml` is the runner manif
 ## Cite
 
 ```bibtex
-@misc{miragesamples,
-  title = {mirage: samples}
+@misc{mirage2026,
+  title        = {mirage: Harbor-format terminal tasks at the Hybrid-Gym task mix},
+  author       = {{Green Rider Technology LLP (Ethara AI)}},
+  year         = {2026},
+  howpublished = {\url{https://github.com/Ethara-Ai}},
+  note         = {Difficulty measured, never claimed}
 }
 ```
 
 ## License
 
-See the license of the repository that publishes this lane.
+No licence file stands in this parent, so no licence is granted here. Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
 
 ## Contact
 
-[Ethara AI on GitHub](https://github.com/Ethara-Ai), [SECURITY.md](SECURITY.md) for a private report, and [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution route.
-
----
-
-## Copyright
+[Ethara AI on GitHub](https://github.com/Ethara-Ai), [SECURITY.md](SECURITY.md) for a private security report, and [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
