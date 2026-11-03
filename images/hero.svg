@@ -1,1 +1,107 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="240" viewBox="0 0 720 240"><rect width="720" height="240" fill="#845EF7"/><text x="360" y="135" font-family="sans-serif" font-size="56" fill="#FFFFFF" text-anchor="middle">mirage</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="240" viewBox="0 0 720 240" role="img" aria-label="mirage: Maya on the salt flats beneath a city that is not there">
+  <title>mirage</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1226"/>
+      <stop offset="0.68" stop-color="#1b2347"/>
+      <stop offset="1" stop-color="#2b2f5c"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4166"/>
+      <stop offset="0.35" stop-color="#2a2340"/>
+      <stop offset="1" stop-color="#15111f"/>
+    </linearGradient>
+    <linearGradient id="towers" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#845EF7" stop-opacity="0.08"/>
+      <stop offset="0.45" stop-color="#845EF7" stop-opacity="0.52"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0.72"/>
+    </linearGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8ecff" stop-opacity="0.92"/>
+      <stop offset="0.5" stop-color="#9b7bf9"/>
+      <stop offset="1" stop-color="#2b2150"/>
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#cfe6ff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="above"><rect x="0" y="0" width="720" height="146"/></clipPath>
+    <clipPath id="below"><rect x="0" y="146" width="720" height="94"/></clipPath>
+  </defs>
+
+  <rect width="720" height="240" fill="url(#sky)"/>
+  <rect y="146" width="720" height="94" fill="url(#ground)"/>
+
+  <g clip-path="url(#above)">
+    <circle cx="612" cy="54" r="30" fill="#845EF7" opacity="0.12"/>
+    <circle cx="612" cy="54" r="15" fill="#cfe6ff" opacity="0.16"/>
+    <g fill="url(#towers)">
+      <rect x="398" y="96" width="14" height="50"/>
+      <rect x="416" y="70" width="26" height="76"/>
+      <rect x="446" y="104" width="11" height="42"/>
+      <rect x="461" y="52" width="20" height="94"/>
+      <path d="M461 52 L471 34 L481 52 Z"/>
+      <rect x="485" y="88" width="15" height="58"/>
+      <rect x="504" y="66" width="30" height="80"/>
+      <rect x="511" y="56" width="16" height="12"/>
+      <rect x="538" y="110" width="12" height="36"/>
+      <rect x="554" y="78" width="22" height="68"/>
+      <rect x="580" y="44" width="16" height="102"/>
+      <path d="M580 44 L588 26 L596 44 Z"/>
+      <rect x="600" y="92" width="27" height="54"/>
+      <rect x="631" y="72" width="13" height="74"/>
+      <rect x="648" y="100" width="24" height="46"/>
+      <rect x="676" y="84" width="14" height="62"/>
+    </g>
+    <g fill="#22d3ee" opacity="0.55">
+      <rect x="470" y="28" width="2" height="7"/>
+      <rect x="587" y="20" width="2" height="7"/>
+      <rect x="636" y="64" width="2" height="7"/>
+    </g>
+    <rect x="392" y="120" width="300" height="26" fill="url(#fade)" opacity="0.55"/>
+  </g>
+
+  <g opacity="0.85">
+    <rect x="330" y="132" width="372" height="15" fill="url(#shimmer)"/>
+    <rect x="300" y="140" width="402" height="7" fill="url(#shimmer)"/>
+  </g>
+  <rect x="0" y="145" width="720" height="1.4" fill="#cfe6ff" opacity="0.4"/>
+
+  <g clip-path="url(#below)">
+    <g stroke="#9b93b5" stroke-opacity="0.42" fill="none" stroke-width="1">
+      <path d="M0 168 L112 162 L236 176 L360 166 L498 180 L624 170 L720 178"/>
+      <path d="M0 196 L96 204 L214 190 L338 202 L470 192 L598 206 L720 196"/>
+      <path d="M0 226 L130 216 L268 230 L404 218 L548 232 L672 220 L720 228"/>
+      <path d="M112 162 L96 204 L130 216"/>
+      <path d="M236 176 L214 190 L268 230"/>
+      <path d="M360 166 L338 202 L404 218"/>
+      <path d="M498 180 L470 192 L548 232"/>
+      <path d="M624 170 L598 206 L672 220"/>
+      <path d="M58 165 L40 200 L72 222"/>
+      <path d="M430 172 L446 198 L418 226"/>
+    </g>
+  </g>
+
+  <g>
+    <path d="M150 46 C140 46 133 54 133 64 C133 72 130 78 126 84 C118 94 113 112 110 128 C109 136 108 142 108 146 L192 146 C192 142 191 136 190 128 C187 112 182 94 174 84 C170 78 167 72 167 64 C167 54 160 46 150 46 Z" fill="url(#veil)"/>
+    <path d="M150 46 C140 46 133 54 133 64 C133 72 130 78 126 84 C119 93 114 109 111 125 L121 127 C124 111 128 96 134 88 C138 82 140 75 140 66 C140 57 144 50 150 48 Z" fill="#e8ecff" opacity="0.34"/>
+    <g stroke="#2b2150" stroke-opacity="0.35" fill="none" stroke-width="1.1">
+      <path d="M150 92 C150 108 150 128 150 145"/>
+      <path d="M137 98 C133 114 130 130 129 145"/>
+      <path d="M163 98 C167 114 170 130 171 145"/>
+    </g>
+    <path d="M108 146 L192 146 C192 142 191 138 190 134 L110 134 C109 138 108 142 108 146 Z" fill="#2b2150" opacity="0.4"/>
+  </g>
+
+  <g clip-path="url(#below)" opacity="0.24">
+    <path d="M150 244 C136 244 126 232 124 216 C122 200 116 184 112 168 C110 158 109 152 108 146 L192 146 C191 152 190 158 188 168 C184 184 178 200 176 216 C174 232 164 244 150 244 Z" fill="url(#veil)"/>
+  </g>
+
+  <text x="470" y="206" font-family="monospace" font-size="46" font-weight="700" fill="#e8ecff" letter-spacing="2">mirage</text>
+  <text x="472" y="224" font-family="sans-serif" font-size="10.5" fill="#22d3ee" opacity="0.85" letter-spacing="1.6">difficulty measured, never claimed</text>
+</svg>
