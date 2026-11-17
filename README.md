@@ -151,6 +151,6 @@ Building an image fetches the upstream checkout from GitHub, so the build needs 
 
 ## Contact
 
-Mirage is built by [Ethara.AI](https://github.com/Ethara-Ai).
+Mirage is built by [Ethara.AI](https://github.com/Ethara-Ai). For questions about the benchmark or dataset, contact [research@ethara.ai](mailto:research@ethara.ai).
 
 Copyright (c) 2026 Green Rider Technology LLP (Ethara AI). All rights reserved.
