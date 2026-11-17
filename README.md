@@ -47,15 +47,15 @@ This repository holds the five-task sample. All five are read-only, multi-cause 
 
 ## Rollouts
 
-Each task was run once with OpenHands 0.62.0 driving Claude Opus 5.5 and scored by the task's own verifier. Rollouts are stored in each task's `trajectories/claude-opus-5-5/run-01/`.
+Each task was run once with OpenHands 0.62.0 driving Claude Opus 5.5 and scored by the task's own verifier. Rollouts are stored in each task's `trials/claude-opus-5-5/run-01/`.
 
 | Task | Model | Agent | Reward | Cost (USD) | Agent time |
 | --- | --- | --- | --- | --- | --- |
-| [00e686b1-9a02-5c13-9c3a-fa5824129971](00e686b1-9a02-5c13-9c3a-fa5824129971/trajectories/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.3575 | 5.80 | 37m 50s |
-| [0d205e9a-9537-5ba9-817a-1132725ee409](0d205e9a-9537-5ba9-817a-1132725ee409/trajectories/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.2249 | 11.73 | 90m 0s (timeout) |
-| [6ffc6d6d-0988-58ef-8129-c72093f48bf5](6ffc6d6d-0988-58ef-8129-c72093f48bf5/trajectories/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.4189 | 7.26 | 60m 0s (timeout) |
-| [78de1d0b-9e9d-584d-aeea-b34efee7cc2a](78de1d0b-9e9d-584d-aeea-b34efee7cc2a/trajectories/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.2151 | 9.98 | 60m 0s (timeout) |
-| [d5a207d9-6e08-5c5c-99c1-e0f8e306b11d](d5a207d9-6e08-5c5c-99c1-e0f8e306b11d/trajectories/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.3373 | 14.21 | 90m 0s (timeout) |
+| [00e686b1-9a02-5c13-9c3a-fa5824129971](00e686b1-9a02-5c13-9c3a-fa5824129971/trials/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.3575 | 5.80 | 37m 50s |
+| [0d205e9a-9537-5ba9-817a-1132725ee409](0d205e9a-9537-5ba9-817a-1132725ee409/trials/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.2249 | 11.73 | 90m 0s (timeout) |
+| [6ffc6d6d-0988-58ef-8129-c72093f48bf5](6ffc6d6d-0988-58ef-8129-c72093f48bf5/trials/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.4189 | 7.26 | 60m 0s (timeout) |
+| [78de1d0b-9e9d-584d-aeea-b34efee7cc2a](78de1d0b-9e9d-584d-aeea-b34efee7cc2a/trials/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.2151 | 9.98 | 60m 0s (timeout) |
+| [d5a207d9-6e08-5c5c-99c1-e0f8e306b11d](d5a207d9-6e08-5c5c-99c1-e0f8e306b11d/trials/claude-opus-5-5/run-01/) | claude-opus-5-5 | openhands 0.62.0 | 0.3373 | 14.21 | 90m 0s (timeout) |
 
 Four runs reached the task's agent timeout of 60 or 90 minutes and were scored as they stood, so their agent time is that limit. Cost is the list price of each run's tokens.
 
@@ -81,7 +81,7 @@ Each rollout folder is Harbor's trial output:
 | `verifier/` | `reward.json`, `reward-details.json` with every rubric verdict, `ctrf.json`, and test output |
 | `artifacts/` | Files collected from the paths declared in `task.toml`: the agent's `answer.md`, its trajectory and sessions, and `agent.patch`, its diff against the checkout |
 
-`trajectories/summary.json` holds each task's score statistics per model, and `trajectories/claude-opus-5-5/summary.json` its runs, token counts and list-price cost.
+`trials/summary.json` holds each task's score statistics per model, and `trials/claude-opus-5-5/summary.json` its runs, token counts and list-price cost.
 
 ## Coverage
 
@@ -125,7 +125,7 @@ Each task is one Harbor task in a directory named by its uuid.
 ├── environment/      sandbox image that fetches and strips the upstream checkout
 ├── tests/            verifier and judged rubric, hidden from the agent
 ├── solution/         reference solution
-└── trajectories/
+└── trials/
     ├── summary.json  scores per model
     └── claude-opus-5-5/
         ├── summary.json  runs, tokens and cost
