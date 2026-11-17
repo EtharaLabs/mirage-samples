@@ -1,0 +1,88 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+
+artifacts = [
+    "/workspace/answer.md",
+    "/logs/agent/trajectory.json",
+    "/logs/agent/answer.md",
+    { source = "/logs/agent/sessions", destination = "agent-sessions" },
+    { source = "/logs/agent/completions", destination = "agent-completions" },
+    "/logs/artifacts/agent.patch",
+]
+
+[task]
+name = "mirage/6ffc6d6d-0988-58ef-8129-c72093f48bf5"
+version = "1.0.0"
+description = "Read-only issue localization in pandas at a commit where four separate defects make a reporting job return quietly wrong rows and dtypes: a ticket reports four steps (lookups by tuple keys of another length on a two-level index, in-place arithmetic with a partner that has extra labels, DataFrame.compare on large integers, and pivot with a list of value columns) whose results are wrong, mostly without any error; find how many root causes there are, the routine and file behind each, why each harmless variant behaves, and how each wrong result comes out of the routines that trust the faulty decision."
+authors = [{ name = "shreyansh.parashar", email = "shreyansh.parashar@ethara.ai" }]
+keywords = ["python", "cython", "issue_localization", "pandas", "multiindex", "dtypes", "reshape", "multi-cause", "read-only"]
+
+[metadata]
+instance_id = "pandas-silent-dtypes-cluster"
+harbor_commit = "b53b8134e1241686dca7759af188f987ecc48e8b"
+repo = "pandas-dev/pandas"
+base_commit = "03e5d938adbd3ec9314c326b002170b73bde2c9f"
+language = "python"
+family = "issue_localization"
+category = "software-engineering"
+difficulty = "hard"
+null_floor = 0.0
+discrimination_weight = 0.5
+reward_type = "bounded_continuous"
+pass-rates = []
+difficulty_rationale = "Four independent defects in four routines: a compiled tuple conversion that sizes every row by the first tuple, together with an index downcast that accepts a converted multi-level index of any depth, so keys of another length match by prefix or fail with unrelated errors (_libs/lib.pyx, indexes/base.py, consumed by the codes engine through _recode_for_new_levels), the in-place arithmetic wrapper that computes the union-aligned result before cutting it back, so extra labels change the dtype or raise (generic.py _inplace_method), frame comparison that masks equal cells before dropping them, so kept integers come back as rounded floats (generic.py compare), and pivot building one joint array for several value columns (reshape/pivot.py). The ticket gives symptoms only and does not say how many causes there are; one cause spans Cython and Python and surfaces through reindex, loc, map and get_indexer, every step has harmless variants that must be explained, the checkout cannot be built or imported in the task image, and all four fixes were merged after the frontier models' training cutoff."
+solution_rationale = "tuples_to_object_array takes k = len(tuples[0]) and copies k elements from every tuple, and Index._maybe_downcast_for_indexing keeps MultiIndex.from_tuples(other) whatever its nlevels; Index._get_indexer then recodes the target with _recode_for_new_levels(self.levels), comparing only the index's levels. NDFrame._inplace_method computes op(self, other) on the union of labels and then reindex_like(self), so the missing values of the extra labels have already upcast int64 to float64 (and make & raise). NDFrame.compare applies where(mask) before cutting the all-equal rows and columns with rmask and cmask, so the inserted missing values upcast the kept integers. pivot builds the intermediate frame from data[values]._values, one two-dimensional array of the common dtype, and unstack keeps it."
+verification_rationale = "A separate verifier scores the agent's read-only investigation twice. The deterministic channel replays the agent's own tool calls and credits only definitions and files actually displayed from the checkout, plus searches, citation grounding and a penalty for any source change. A 37-criterion judged rubric scores the explanation against a reference built from the base commit, the four upstream fixes and a reproduction of every step on a wheel built from the base commit (41 checked claims), between a fifth and two sevenths of its weight per root cause, weighted four to one over the deterministic channel."
+[verifier]
+timeout_sec = 1800.0
+environment_mode = "separate"
+network_mode = "public"
+
+[verifier.env]
+HG_INSTANCE_ID = "pandas-silent-dtypes-cluster"
+ANTHROPIC_API_BASE = "${ANTHROPIC_API_BASE:-https://api.anthropic.com}"
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1200
+cpus = 2
+memory_mb = 4096
+storage_mb = 8192
+gpus = 0
+
+[[verifier.collect]]
+command = "git -C /workspace/pandas-dev__pandas add -A && git -C /workspace/pandas-dev__pandas diff --cached > /logs/artifacts/agent.patch"
+
+[agent]
+timeout_sec = 3600
+user = "1000:1000"
+network_mode = "allowlist"
+allowed_hosts = ["docs.python.org"]
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 3600
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
+os = "linux"
+workdir = "/workspace"
+
+[upstream_provenance]
+origin = "derived"
+provenance_date = "2026-11-04"
+source_kind = "public_repository"
+upstream_benchmark = "pandas PRs #71020 (c64d1448ef1a), #71324 (07b3c9382182), #71033 (ee4989f150f8) and #71087 (119e3fc415e3), for issues #50293, #12755, #39899 and #43547"
+license = "BSD-3-Clause"
+modifications = [
+    "checkout pinned at 03e5d938adbd, the sole parent of ee4989f150f8 (PR #71033), the earliest of the four fixes, so all four defects are live",
+    "comments and docstrings stripped from Python and Cython sources, test files removed, and version history replaced by a single base commit",
+]
+
+[upstream_provenance.source]
+canonical_repo = "https://github.com/pandas-dev/pandas"
+fork_ancestry_digest = "sha256:4902f17f4c734a9219aee7477c4563c62d0f63a10e1a69ed62dc1501b8087600"
+base_commit = "03e5d938adbd3ec9314c326b002170b73bde2c9f"
+event_timestamp = "2026-10-17T15:00:42Z"

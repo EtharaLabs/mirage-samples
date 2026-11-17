@@ -1,0 +1,82 @@
+{
+  "instance_id": "78de1d0b-9e9d-584d-aeea-b34efee7cc2a",
+  "model": "claude-opus-5-5",
+  "n_runs": 1,
+  "agent": "openhands",
+  "agent_version": "0.62.0",
+  "dimensions": {
+    "pytest": {
+      "mean": 0.7568,
+      "median": 0.7568,
+      "min": 0.7568,
+      "max": 0.7568,
+      "stdev": 0.0,
+      "n": 1
+    },
+    "rubric": {
+      "mean": 0.0797,
+      "median": 0.0797,
+      "min": 0.0797,
+      "max": 0.0797,
+      "stdev": 0.0,
+      "n": 1
+    },
+    "reward": {
+      "mean": 0.2151,
+      "median": 0.2151,
+      "min": 0.2151,
+      "max": 0.2151,
+      "stdev": 0.0,
+      "n": 1
+    }
+  },
+  "runs": [
+    {
+      "run": "run-01",
+      "harbor_trial": "78de1d0b-9e9d-584d-aeea-b34efee7__48vkEkd",
+      "pytest": 0.7568,
+      "rubric": 0.0797,
+      "reward": 0.2151,
+      "tokens": {
+        "input_fresh": 194,
+        "cache_read": 9536948,
+        "cache_write": 164149,
+        "output": 362783,
+        "reasoning": 77708
+      }
+    }
+  ],
+  "pass_at_k": {
+    "threshold": 0.7,
+    "note": "computed here; harbor's requires binary 0/1 rewards",
+    "k": {
+      "1": 0.0
+    }
+  },
+  "harbor_ran_on": {
+    "opus55-78de1d0b-r4": {
+      "version": "0.24.0",
+      "is_editable": false
+    }
+  },
+  "tokens": {
+    "input_fresh": 194,
+    "cache_read": 9536948,
+    "cache_write": 164149,
+    "output": 362783,
+    "reasoning": 77708
+  },
+  "cost": {
+    "basis": "derived at list price; inference ran on a subscription bridge and was not metered per call, so harbor records cost_usd: null",
+    "source": "litellm.model_cost",
+    "usd_per_mtok": {
+      "input": 4.0,
+      "cache_read": 0.19999999999999998,
+      "cache_write": 5.0,
+      "output": 20.0
+    },
+    "usd": 9.9846,
+    "without_cache_usd": 46.0608,
+    "cache_saving_usd": 36.0763
+  }
+}

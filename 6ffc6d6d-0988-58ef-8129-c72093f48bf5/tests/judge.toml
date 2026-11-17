@@ -1,0 +1,380 @@
+[judge]
+judge = "anthropic/claude-fable-5-1"
+mode = "individual"
+samples = 1
+timeout = 900
+guard = "flag"
+files = ["/app/answer.md", "/app/process.md"]
+
+[scoring]
+aggregation = "weighted-mean"
+
+[[criterion]]
+id = "R1"
+name = "R1"
+description = "The response states that there are four distinct root causes, one behind each of the four steps, rather than one shared cause."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R2"
+name = "R2"
+description = "The response states that the four faults are independent, so that fixing any one of them leaves the other steps wrong."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R3"
+name = "R3"
+description = "The response identifies `tuples_to_object_array` in `pandas/_libs/lib.pyx` as sizing every row by the first tuple's length and copying only that many elements, so a longer key is cut to its prefix and a shorter one raises `IndexError`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R4"
+name = "R4"
+description = "The response identifies `Index._maybe_downcast_for_indexing` in `pandas/core/indexes/base.py` as converting the flat keys with `MultiIndex.from_tuples` and keeping the result without checking that its number of levels equals the index's."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R5"
+name = "R5"
+description = "The response explains that `MultiIndex.from_tuples` uses `tuples_to_object_array` (its only caller) for ndarray or `Index` input, while a plain list is turned into a three-level index padded with a missing value by the `Index` constructor."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R6"
+name = "R6"
+description = "The response explains the comparison downstream: `Index._get_indexer` calls the codes engine's `_extract_level_codes`, which recodes the target with `_recode_for_new_levels(self.levels)` for only as many levels as the index has, so a longer target matches on its prefix, and a target with fewer levels raises the `AssertionError`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R7"
+name = "R7"
+description = "The response traces `reindex`, `.loc[[...]]` and `DataFrame.reindex` to `Index.get_indexer`, which calls `_maybe_downcast_for_indexing`, and lists that helper's callers: `get_indexer`, `get_indexer_non_unique` and `join`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R8"
+name = "R8"
+description = "The response explains that `MultiIndex._wrap_reindex_result` builds the result's index from `self.take(indexer)`, so the three-part label disappears from it, and that `Index.map` cuts tuples because it passes an ndarray to `MultiIndex.from_tuples`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R9"
+name = "R9"
+description = "The response explains why the variants behave: keys of the right length convert exactly, a single tuple in `.loc` is rejected with `Too many indexers`, and `MultiIndex.isin` checks every value's length before converting."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R10"
+name = "R10"
+description = "The response proposes, for step A, a length check in `tuples_to_object_array` and a level-count check in `_maybe_downcast_for_indexing` that falls back to a flat comparison."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R11"
+name = "R11"
+description = "The agent reads, in the checkout, `tuples_to_object_array` or `_maybe_downcast_for_indexing`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-1", dimension = "process" }
+
+[[criterion]]
+id = "R12"
+name = "R12"
+description = "The response identifies `NDFrame._inplace_method` in `pandas/core/generic.py` as computing the full operation, aligned on the union of labels, before cutting it back with `reindex_like(self)`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R13"
+name = "R13"
+description = "The response explains that the label only the partner has gets a missing value in the union result, which an `int64` column cannot hold, so it becomes `float64`; `reindex_like` drops the label but keeps the dtype, and `_update_inplace` installs it."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R14"
+name = "R14"
+description = "The response lists the callers: every in-place operator, `__iadd__`, `__isub__`, `__imul__`, `__itruediv__`, `__ifloordiv__`, `__imod__`, `__ipow__`, `__iand__`, `__ior__` and `__ixor__`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R15"
+name = "R15"
+description = "The response traces `x += partner` to `__iadd__`, which calls `_inplace_method(other, type(self).__add__)`, and notes that `df[\"a\"] += ...` runs the series operator and assigns the result back, and that `df +=` and `df &=` go through the frame's operators."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R16"
+name = "R16"
+description = "The response explains the `TypeError` from `df &= other_df`: the union-aligned `&` puts a missing value into the integer column `a`, making it `float64`, and `float & int` raises inside the operation, before `reindex_like` is reached."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R17"
+name = "R17"
+description = "The response explains why the variants behave: identical labels add nothing, `Int64` holds the missing value in its mask, boolean operators fill the aligned missing values with `False` (`fill_bool`), plain `x + partner` is supposed to return the union, and labels of `x` that the partner lacks are missing in the operation itself."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R18"
+name = "R18"
+description = "The response proposes, for step B, aligning the partner to `self` (a left join on the index) before the operation when the indexes differ."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R19"
+name = "R19"
+description = "The agent reads, in the checkout, `_inplace_method` in `generic.py`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-2", dimension = "process" }
+
+[[criterion]]
+id = "R20"
+name = "R20"
+description = "The response identifies `NDFrame.compare` in `pandas/core/generic.py` as masking the equal cells with `where(mask)` before dropping the all-equal rows and columns (`rmask`, `cmask` and `.loc`)."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R21"
+name = "R21"
+description = "The response explains that `where` inserts missing values into the equal cells, including the rows and columns that are dropped later, so the column becomes `float64` (booleans become `object`) and the kept row holds rounded floats, which makes the two `uint64` values identical."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R22"
+name = "R22"
+description = "The response states that `DataFrame.compare` and `Series.compare` both call `NDFrame.compare` through `super().compare`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R23"
+name = "R23"
+description = "The response explains why the variants behave: `keep_equal=True` never masks, when every row differs nothing is masked in the column, `Int64` and datetimes hold missing values without upcasting, and `keep_shape=True` keeps the equal rows, which must be shown as missing."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R24"
+name = "R24"
+description = "The response proposes, for step C, dropping the all-equal rows and columns first and only then masking the remaining cells."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R25"
+name = "R25"
+description = "The agent reads, in the checkout, `compare` in `generic.py`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-3", dimension = "process" }
+
+[[criterion]]
+id = "R26"
+name = "R26"
+description = "The response identifies `pivot` in `pandas/core/reshape/pivot.py` as building the intermediate frame from `data[values]._values` when `values` is a list."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R27"
+name = "R27"
+description = "The response explains that `data[values]._values` is one two-dimensional array with a single dtype, the common dtype of the value columns (`float64` for integers with floats, `object` with strings), and that `unstack` keeps it."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R28"
+name = "R28"
+description = "The response contrasts the single-value branch, which builds a series from that column's one-dimensional values and keeps its dtype, and explains that `values=[\"ints\"]` gives an array of a single dtype."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R29"
+name = "R29"
+description = "The response states that `DataFrame.pivot` in `pandas/core/frame.py` calls this `pivot` and that `pd.pivot` is the same function, and that with `values` left out `pivot` calls `set_index` and unstacks, keeping each column's dtype."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R30"
+name = "R30"
+description = "The response explains why `pivot_table` (aggregating through `groupby`) and `set_index(...).unstack(...)` keep the dtypes: neither builds the joint array."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R31"
+name = "R31"
+description = "The response proposes, for step D, building the intermediate frame without one joint array, for example with `data[values].set_axis(...)` for the index and the columns."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R32"
+name = "R32"
+description = "The agent reads, in the checkout, `pivot` in `pivot.py`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-4", dimension = "process" }
+
+[[criterion]]
+id = "R33"
+name = "R33"
+description = "The response attributes step A to the codes engine or `get_loc` comparing keys wrongly rather than to the tuple conversion and the unchecked level count."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R34"
+name = "R34"
+description = "The response attributes two or more of the four steps to one shared root cause."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R35"
+name = "R35"
+description = "The response attributes step B to the union alignment of ordinary binary operations being wrong in general rather than to `_inplace_method` keeping the union."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R36"
+name = "R36"
+description = "The response places the defect of step C in `where` or in the equality test themselves, proposing to repair them, rather than in the order in which `compare` uses them."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R37"
+name = "R37"
+description = "The response attributes step D to `unstack` losing the dtypes."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }

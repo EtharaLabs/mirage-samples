@@ -1,0 +1,644 @@
+{
+  "reward": {
+    "kind": "group",
+    "score": 0.3373,
+    "aggregation": "weighted-mean",
+    "components": [
+      {
+        "name": "judge",
+        "weight": 4.0,
+        "detail": {
+          "score": 0.1716,
+          "criteria": [
+            {
+              "id": "R1",
+              "name": "R1",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 5.0,
+              "description": "The response states that there are four distinct root causes, one behind each of the four queries, rather than one shared cause.",
+              "reasoning": "The submission explicitly states, \"four independent root causes, one per query,\" and lists a separate root cause for each of queries A, B, C, and D."
+            },
+            {
+              "id": "R2",
+              "name": "R2",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response states that queries A, B and C come from optimizer decisions, which is why `QueryOptFlags.none()` repairs them, while query D comes from the SQL translation and no optimizer setting changes it.",
+              "reasoning": "The response identifies optimizer-related causes for A, B, and C and a SQL translation cause for D, but it does not state that `QueryOptFlags.none()` repairs A\u2013C or that no optimizer setting changes D."
+            },
+            {
+              "id": "R3",
+              "name": "R3",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies `classify_negation` in `crates/polars-plan/src/plans/aexpr/filter_constraint.rs` as recording the haystack of the negated `is_in` as disallowed values (`add_disallowed`) without looking at the `nulls_equal` flag.",
+              "reasoning": "The response references the correct file and discusses negated is_in constraints, but attributes the issue to ColumnConstraints::resolve_deferred / has_value_constraint. It does not identify classify_negation as recording the negated is_in haystack via add_disallowed without checking nulls_equal."
+            },
+            {
+              "id": "R4",
+              "name": "R4",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that `ColumnConstraints::resolve_deferred` marks the column impossible (`unsat`) when a required missing value (`Nullability::Null`, from `is_null`) meets a value constraint, and that `has_value_constraint` counts the negated membership's disallowed set as such a constraint.",
+              "reasoning": "The response identifies the relevant functions and notes that the negated membership's disallowed set is treated as null-excluding, causing `is_null() & ~is_in(..)` to fold to false. However, it does not explain the required mechanism: `resolve_deferred` marks the column `unsat` when `Nullability::Null` encounters a value constraint, and `has_value_constraint` counts the disallowed set as such a constraint."
+            },
+            {
+              "id": "R5",
+              "name": "R5",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why that verdict is wrong here: with `nulls_equal=True` a missing value is not a member of the null-free haystack `[1]`, so `~is_in` is true rather than missing for it and the missing row satisfies both conditions; treating the negated membership as dropping missing values holds only without `nulls_equal`.",
+              "reasoning": "The submission identifies that negated `is_in` is incorrectly treated as null-excluding when `nulls_equal=True`, but does not explain the required semantics: a missing value is not in the null-free haystack `[1]`, so negation yields true and the missing row satisfies both conditions. It also does not clarify that negated membership drops missing values only without `nulls_equal`."
+            },
+            {
+              "id": "R6",
+              "name": "R6",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response traces query A from the filter to the decision: `FilterConstraintRule::optimize_plan` (registered by the optimizer under expression simplification) calls `merge_filter_constraints`, which calls `model_and_chain`, which classifies each conjunct of the `AND` chain (`classify_into_constraints`, with the negation handled by `classify_negation` and `is_null` by `classify_null`) and then runs `resolve_deferred`.",
+              "reasoning": "The submission identifies query A's suspected root cause in `ColumnConstraints::resolve_deferred` / `has_value_constraint`, but does not trace the required optimizer call chain: `FilterConstraintRule::optimize_plan` registered under expression simplification \u2192 `merge_filter_constraints` \u2192 `model_and_chain` \u2192 conjunct classification via `classify_into_constraints`, including `classify_negation` and `classify_null` \u2192 `resolve_deferred`."
+            },
+            {
+              "id": "R7",
+              "name": "R7",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that for an impossible chain `merge_filter_constraints` returns the literal `false`, and that `SimplifyBooleanRule` then replaces the filter with an empty scan (`DataFrameScan` of an empty frame), which is why the query returns no rows without ever evaluating the mask.",
+              "reasoning": "The submission mentions that a constraint is folded to `false`, but it does not explain that `merge_filter_constraints` returns the literal `false` for an impossible chain or that `SimplifyBooleanRule` replaces the filter with a `DataFrameScan` of an empty frame, yielding no rows without evaluating the mask."
+            },
+            {
+              "id": "R8",
+              "name": "R8",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response lists the callers of the deciding helper: `resolve_deferred` is called only from `model_and_chain`, and `model_and_chain` is used both by `merge_filter_constraints` and by `and_chain_bounds`, whose users are the asof-join predicate pushdown (`key_intervals`) and the row estimate in the plan statistics (`predicate_selectivity`).",
+              "reasoning": "The submission mentions `resolve_deferred` but does not list its callers or the required call chain: `resolve_deferred` is called only by `model_and_chain`, which is used by `merge_filter_constraints` and `and_chain_bounds`, with the latter used by `key_intervals` for asof-join predicate pushdown and `predicate_selectivity` for plan-statistics row estimates."
+            },
+            {
+              "id": "R9",
+              "name": "R9",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the mask computed with `with_columns` is right (the rule rewrites filter predicates only), why `QueryOptFlags.none()` is right (the rule is not registered without expression simplification), and why the negated membership alone is right (no `is_null` requirement, and the disallowed set is never emitted, only used to detect contradictions).",
+              "reasoning": "The submission does not explain any of the three required points: why computing the mask with `with_columns` avoids a rule that rewrites only filter predicates; why `QueryOptFlags.none()` works because the rule is not registered without expression simplification; or why negated membership alone is correct without an `is_null` requirement, with the disallowed set used only to detect contradictions and never emitted. It only provides a preliminary root-cause statement about negated `is_in` and null handling."
+            },
+            {
+              "id": "R10",
+              "name": "R10",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why `|` and `ne_missing(1)` behave (the `AND`-chain walk does not split a disjunction, and the null-preserving comparison is kept opaque) and why `nulls_equal=False` and a haystack containing `None` give an empty result that is correct there (missing compares as missing under `nulls_equal=False`; a haystack with `None` is not modelled, and with `nulls_equal=True` a missing value is its member).",
+              "reasoning": "The submission only identifies a preliminary root cause involving negated is_in and nulls_equal=True. It does not explain why the AND-chain walk leaves a disjunction (`|`) unsplit, why `ne_missing(1)` remains opaque, or why the empty results for nulls_equal=False and a haystack containing None are correct. It also omits the required distinction that missing comparisons remain missing under nulls_equal=False, whereas a missing value belongs to a haystack containing None under nulls_equal=True."
+            },
+            {
+              "id": "R11",
+              "name": "R11",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response explains why the eager `DataFrame.filter`, the streaming engine, the swapped conditions and the two chained filters are all wrong: they reach the same optimized plan (eager filtering goes through the lazy optimizer, the verdict does not depend on conjunct order, and predicate pushdown merges chained filters into one chain).",
+              "reasoning": "The submission does not discuss eager DataFrame.filter, the streaming engine, swapped conjunct order, or two chained filters. It therefore does not explain that these variants reach the same optimized plan through lazy optimization, order-independent constraint handling, and predicate pushdown merging chained filters."
+            },
+            {
+              "id": "R12",
+              "name": "R12",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for query A, recording the negated membership in `classify_negation` only when `nulls_equal` is false, or basing the missing-versus-value check in `resolve_deferred` only on constraints that really drop missing values.",
+              "reasoning": "For query A, the response identifies the incorrect treatment of negated `is_in` as null-excluding when `nulls_equal=True`, but does not propose either required fix: recording the negated membership only when `nulls_equal` is false, or restricting `resolve_deferred`'s missing-versus-value check to constraints that actually drop missing values."
+            },
+            {
+              "id": "R13",
+              "name": "R13",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 5.0,
+              "description": "The response identifies the `BinaryExpr` / `Ternary` arm of `ExprOrderSimplifier::rec` in `crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs` as the place where the ternary's observable order is decided.",
+              "reasoning": "The submission explicitly identifies `ExprOrderSimplifier::rec`'s Ternary arm in `crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs` and explains that it snapshots the output ordering before incorporating the `when` mask's ordering, identifying the location where the ternary's observable order is decided."
+            },
+            {
+              "id": "R14",
+              "name": "R14",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that the arm reads the accumulated orders of the two branches (`output_observable = acc.accumulated_orders()`) before the predicate's order is added, so a ternary whose branches are literals reports no observable order although the predicate places a value in every row in the input's order.",
+              "reasoning": "The submission identifies that the Ternary arm snapshots output ordering before adding the predicate mask\u2019s ordering, but it does not explain that `output_observable = acc.accumulated_orders()` reads the two branches\u2019 accumulated orders, or that literal branches therefore report no observable order even though the predicate places a value in every row in the input\u2019s order."
+            },
+            {
+              "id": "R15",
+              "name": "R15",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response notes the second instance of the same mistake in that arm: when the predicate is the only ordered input and de-ordering is allowed, the arm sets the result to empty (`if Some(node) == ternary_mask_node`).",
+              "reasoning": "The response identifies an ordering snapshot issue in the Ternary arm, but does not note the second mistake: when the predicate is the only ordered input and de-ordering is allowed, `if Some(node) == ternary_mask_node` sets the result ordering to empty."
+            },
+            {
+              "id": "R16",
+              "name": "R16",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response traces query B to the decision: the optimizer runs `simplify_and_fetch_orderings` when `CHECK_ORDER_OBSERVE` is set, and `SimplifyIRNodeOrder::simplify_ir_node_orders` handles the `Select` through `ExprOrderSimplifier::simplify_projected_exprs`, which calls `rec` on the ternary.",
+              "reasoning": "The submission identifies `ExprOrderSimplifier::rec` and its ternary arm as query B\u2019s suspected root cause, but does not trace the required optimizer path: `CHECK_ORDER_OBSERVE` triggering `simplify_and_fetch_orderings`, followed by `SimplifyIRNodeOrder::simplify_ir_node_orders` handling `Select` through `ExprOrderSimplifier::simplify_projected_exprs`, which calls `rec` on the ternary."
+            },
+            {
+              "id": "R17",
+              "name": "R17",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains how the wrong order comes out: the `Select` arm sees no observed input order and marks its input edge unordered, and the `Sort` arm then removes the sort (`unlink_node`) because its output edge is unordered and it carries no slice, so the flags are computed in the original row order `[5, 1, 4, 2, 3]`.",
+              "reasoning": "The submission only states that an upstream Sort is deleted due to ordering simplification. It does not explain that the Select arm sees no observed input order and marks its input edge unordered, that the Sort arm calls unlink_node because its output edge is unordered and it has no slice, or that the flags are consequently computed in the original row order [5, 1, 4, 2, 3]."
+            },
+            {
+              "id": "R18",
+              "name": "R18",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why `.cum_sum()` of the flag is also wrong (its input, the ternary, reports no order for it to observe) and why string labels behave like integer literals.",
+              "reasoning": "The submission mentions a ternary ordering bug but does not explain why `.cum_sum()` of the flag is also wrong\u2014specifically, that its ternary input reports no ordering for it to observe. It also does not explain why string labels behave like integer literals."
+            },
+            {
+              "id": "R19",
+              "name": "R19",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why `then(pl.col(\"x\"))`, the bare comparison `pl.col(\"x\") > 1`, `with_columns` and selecting `x` next to the flag behave: a column branch or operand reports the column's order, and a `with_columns` (an `HStack` that keeps the input columns) observes the input order.",
+              "reasoning": "The submission identifies a possible ternary ordering simplification bug, but does not explain the required behaviors of `then(pl.col(\"x\"))`, the bare comparison `pl.col(\"x\") > 1`, `with_columns`, or selecting `x` alongside the flag. It does not state that column branches and operands report the column's order, or that `with_columns` is an `HStack` retaining input columns and therefore observes input order."
+            },
+            {
+              "id": "R20",
+              "name": "R20",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why `.head(3)` after the `select` behaves: slice pushdown moves the slice into the sort, and the order simplifier keeps a sort that carries a slice.",
+              "reasoning": "The submission does not explain why `.head(3)` after `select` behaves correctly. It mentions deletion of an upstream sort in the ordering simplifier, but does not state that slice pushdown moves the slice into the sort or that the order simplifier preserves a sort carrying a slice."
+            },
+            {
+              "id": "R21",
+              "name": "R21",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response explains why `QueryOptFlags.none()` and the eager `DataFrame` behave (the order pass does not run, and an eager frame is already sorted with no sort left to remove).",
+              "reasoning": "The response does not explain why QueryOptFlags.none() behaves differently (because the order optimization pass does not run), nor why an eager DataFrame behaves differently (because it is already sorted and has no remaining sort operation for the optimizer to remove)."
+            },
+            {
+              "id": "R22",
+              "name": "R22",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for query B, adding the predicate to the inputs whose orders are accumulated before the result is read (and dropping the special case that empties it).",
+              "reasoning": "For query B, the response identifies that the output ordering is read before the predicate's ordering is added, but it does not propose adding the predicate to the inputs accumulated before reading the result or removing the special case that empties it."
+            },
+            {
+              "id": "R23",
+              "name": "R23",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies the join arm of `ProjectionPushdownVisitor::pushdown` in `crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs` as switching the join to `JoinCoalesce::CoalesceColumns` when no right key is projected, without checking that the join is an equi join.",
+              "reasoning": "The submission identifies the projection-pushdown IR::Join arm in the correct file and says it flips coalescing to CoalesceColumns for an IEJoin. However, it does not identify the trigger as no right key being projected or explicitly explain that the change is made without checking whether the join is an equi join."
+            },
+            {
+              "id": "R24",
+              "name": "R24",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains how the left `join_where` reaches that arm: `resolve_join_where` makes it a left join with `CrossAndFilter` and coalescing off, and predicate pushdown (`try_rewrite_outer_iejoin`) rewrites it into an `IEJoin` with `left_on = [x]` and `right_on = [y]`, so the inequality operand `y` counts as an unprojected right key.",
+              "reasoning": "The submission only notes that projection pushdown changes coalescing for a join rewritten to an IEJoin. It does not explain that resolve_join_where initially creates a left join with CrossAndFilter and coalescing off, or that try_rewrite_outer_iejoin rewrites it to an IEJoin with left_on = [x] and right_on = [y], making y an unprojected right key."
+            },
+            {
+              "id": "R25",
+              "name": "R25",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that with coalescing on, the planned join schema (`det_join_schema`, through `join_right_output_names` in `crates/polars-plan/src/plans/schema.rs`) drops the right key `y`, while the inequality join that runs (`_join_impl` dispatching to `iejoin` in polars-ops) never coalesces and still returns `y`, so the data has one column more than the plan.",
+              "reasoning": "The submission mentions that projection pushdown changes coalesce to CoalesceColumns for an IEJoin, but does not explain that det_join_schema, through join_right_output_names in crates/polars-plan/src/plans/schema.rs, drops the right key y, whereas _join_impl dispatches to iejoin in polars-ops, which never coalesces and retains y, leaving the actual data with one more column than the planned schema."
+            },
+            {
+              "id": "R26",
+              "name": "R26",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that the streaming engine lowers the select to a `SimpleProjectionNode` (through `build_select_stream_with_ctx`) whose column positions come from the planned schema (`index_of`), checked only by a debug assertion, so the planned position of `k` picks the physical `y`: `k_right` becomes `[0, 0]`, and in `select(\"k\", \"k_right\")` the column comes out under the name `y`.",
+              "reasoning": "The submission does not explain the streaming select lowering through `build_select_stream_with_ctx` to a `SimpleProjectionNode`, schema-based `index_of` positions, or the debug-only assertion. It also omits the required consequences: the planned position of `k` selecting physical `y`, `k_right` becoming `[0, 0]`, and `select(\"k\", \"k_right\")` returning the column named `y`."
+            },
+            {
+              "id": "R27",
+              "name": "R27",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why `select(\"x\")` returns `x` and `y` on both engines: the planned join output already equals the requested columns, so no select is left in the plan to drop the physical `y`.",
+              "reasoning": "The response mentions projection pushdown changing join coalescing, but does not explain why select(\"x\") returns both x and y on both engines: the planned join output already matches the requested columns, so no select remains in the plan to drop the physical y."
+            },
+            {
+              "id": "R28",
+              "name": "R28",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the in-memory engine gets `select(\"x\", \"k_right\")` right: its column expression (`ColumnExpr`) looks a column up by its planned position but falls back to a lookup by name when the name differs.",
+              "reasoning": "The submission does not explain the in-memory engine\u2019s handling of select(\"x\", \"k_right\"). It never mentions ColumnExpr or its behavior of looking up a column by its planned position and falling back to a name-based lookup when the name differs."
+            },
+            {
+              "id": "R29",
+              "name": "R29",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the full collect, `select(\"x\", \"y\", \"k_right\")`, `how=\"inner\"` and `QueryOptFlags.none()` behave: the first two project `y`, an inner `join_where` becomes an `IEJoin` or `Range` join type that the arm (inner or left only) skips, and projection pushdown is off without optimizations.",
+              "reasoning": "The submission only briefly identifies a projection-pushdown coalescing issue for query C. It does not explain that the full collect and select(\"x\", \"y\", \"k_right\") project y, that how=\"inner\" produces an IEJoin or Range join type skipped by the inner-or-left-only arm, or that QueryOptFlags.none() disables projection pushdown."
+            },
+            {
+              "id": "R30",
+              "name": "R30",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response explains that the streaming engine runs this left inequality join through its in-memory join fallback (`InMemoryJoin`), because the join is neither a pure equi join, nor a fused predicate, nor a range join.",
+              "reasoning": "The submission does not explain that the streaming engine executes the left inequality join through the in-memory fallback (`InMemoryJoin`), nor that this fallback is selected because the join is neither a pure equi join, a fused predicate, nor a range join. Its discussion of query C only addresses projection pushdown and coalescing for an IEJoin."
+            },
+            {
+              "id": "R31",
+              "name": "R31",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for query C, turning coalescing on only for equi joins, for example by also requiring `JoinTypeOptionsIR::Equi` in that condition.",
+              "reasoning": "For query C, the response identifies that projection pushdown incorrectly enables coalescing for a join rewritten to an IEJoin, but it does not propose restricting coalescing to equi joins or requiring `JoinTypeOptionsIR::Equi` in the condition."
+            },
+            {
+              "id": "R32",
+              "name": "R32",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 5.0,
+              "description": "The response identifies the `SetExpr::Values` arm of `SQLContext::process_query` in `crates/polars-sql/src/context.rs` as returning the frame from `process_values` without applying the query's `ORDER BY` (`process_order_by`).",
+              "reasoning": "Finding D identifies the `SetExpr::Values` arm of `SQLContext::process_query` in `crates/polars-sql/src/context.rs` as never calling `process_order_by`, correctly pinpointing that VALUES queries bypass the query's ORDER BY handling."
+            },
+            {
+              "id": "R33",
+              "name": "R33",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response names the places that apply `ORDER BY` for the other bodies: `execute_select_block` (reached through `execute_select`) for a `SELECT`, the `SetExpr::Query` arm for a parenthesized body, `process_union`, and `process_except_intersect`.",
+              "reasoning": "The response only identifies that the SetExpr::Values arm does not call process_order_by. It does not name the ORDER BY handling locations for the other bodies: execute_select_block reached through execute_select, the SetExpr::Query arm, process_union, and process_except_intersect."
+            },
+            {
+              "id": "R34",
+              "name": "R34",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that `LIMIT` and `OFFSET` still apply because `execute_query` calls `process_limit_offset` after `process_query` for every body, which is why `ORDER BY 1 LIMIT 2` keeps the first two rows as written.",
+              "reasoning": "The submission only notes that the SetExpr::Values arm of process_query never calls process_order_by. It does not explain that execute_query calls process_limit_offset after process_query for every body, or that this preserves LIMIT/OFFSET and causes ORDER BY 1 LIMIT 2 to retain the first two rows as written."
+            },
+            {
+              "id": "R35",
+              "name": "R35",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the subquery form, the parenthesized form and the `UNION ALL` form sort correctly: their bodies go through arms that apply `ORDER BY`.",
+              "reasoning": "The submission only states that the SetExpr::Values arm never calls process_order_by. It does not explain why the subquery, parenthesized, and UNION ALL forms sort correctly, nor identify that their bodies pass through arms that apply ORDER BY."
+            },
+            {
+              "id": "R36",
+              "name": "R36",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response explains that `QueryOptFlags.none()` changes nothing for query D because the sort is never put into the plan.",
+              "reasoning": "The submission identifies that query D never calls `process_order_by`, but does not explain that `QueryOptFlags.none()` changes nothing because the sort is never put into the plan."
+            },
+            {
+              "id": "R37",
+              "name": "R37",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for query D, applying `process_order_by` with the query's `ORDER BY` to the frame from `process_values` in that arm.",
+              "reasoning": "For query D, the response identifies that the SetExpr::Values arm never calls process_order_by, but does not propose applying it with the query's ORDER BY to the frame returned by process_values in that arm."
+            },
+            {
+              "id": "R38",
+              "name": "R38",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response traces query D from `SQLContext::execute` through `execute_query` to `process_query`.",
+              "reasoning": "The submission identifies `SQLContext::process_query` and its `SetExpr::Values` arm as query D\u2019s root cause, but does not trace query D from `SQLContext::execute` through `execute_query` to `process_query`."
+            },
+            {
+              "id": "R39",
+              "name": "R39",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, `classify_negation` or `resolve_deferred` in the filter-constraint model.",
+              "reasoning": "The agent read the checkout\u2019s filter-constraint model using `cat -n crates/polars-plan/src/plans/aexpr/filter_constraint.rs` and additionally requested lines 415\u2013820 with `sed`. These reads cover the model containing `classify_negation` and `resolve_deferred`, even though the recorded command output is truncated."
+            },
+            {
+              "id": "R40",
+              "name": "R40",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, the `BinaryExpr` / `Ternary` arm of the order simplifier in `simplify_ordering/expr.rs`.",
+              "reasoning": "The agent ran `cat -n crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs | sed -n 1,420p` in the checkout, covering the BinaryExpr / Ternary arm at lines 269 onward. A preceding grep explicitly identified that arm and its location."
+            },
+            {
+              "id": "R41",
+              "name": "R41",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, the coalescing condition in the projection pushdown join arm and the join output schema code.",
+              "reasoning": "The agent reads the checkout\u2019s projection pushdown join arm with `sed -n 880,1230p crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs`, covering the coalescing condition and the assignment to `JoinCoalesce::CoalesceColumns` around lines 1035\u20131055. The agent also locates `det_join_schema` and reads the join output schema code with `sed -n 80,260p crates/polars-plan/src/plans/schema.rs`."
+            },
+            {
+              "id": "R42",
+              "name": "R42",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, `process_query` in the SQL context.",
+              "reasoning": "The agent inspected `process_query` in the checkout's SQL context, `crates/polars-sql/src/context.rs`. The recorded actions include a grep locating its definition at line 1115 and `sed -n 740,1300p` covering that definition, followed by further inspection of its branches and call sites."
+            },
+            {
+              "id": "R43",
+              "name": "R43",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes query A to the evaluation of `is_null`, `is_in` or `not` (the kernels that compute the mask) rather than to a rewrite of the plan.",
+              "reasoning": "The submission attributes query A to constraint resolution and plan simplification, specifically folding `is_null() & ~is_in(..)` to `false`. It does not attribute the issue to evaluation of the `is_null`, `is_in`, or `not` mask-computation kernels.",
+              "negate": true
+            },
+            {
+              "id": "R44",
+              "name": "R44",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes two or more of the four queries to one shared root cause.",
+              "reasoning": "The response explicitly identifies \u201cfour independent root causes, one per query\u201d and assigns a distinct cause to each of A, B, C, and D. It does not attribute two or more queries to one shared root cause.",
+              "negate": true
+            },
+            {
+              "id": "R45",
+              "name": "R45",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes query C to the inequality join kernel matching the wrong rows or computing wrong values.",
+              "reasoning": "The response attributes query C to projection pushdown incorrectly changing join coalescing after an IEJoin rewrite, not to the inequality join kernel matching incorrect rows or computing incorrect values.",
+              "negate": true
+            },
+            {
+              "id": "R46",
+              "name": "R46",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes query D to the query optimizer.",
+              "reasoning": "The response attributes query D to SQLContext::process_query in the SQL processing layer, specifically its failure to call process_order_by, rather than to the query optimizer.",
+              "negate": true
+            }
+          ],
+          "kind": "llm",
+          "judge": {
+            "model": "openai/gpt-6.1-sol",
+            "reasoning_effort": "medium",
+            "timeout": 900,
+            "files": [
+              "/app/answer.md",
+              "/app/process.md"
+            ],
+            "atif_trajectory": null,
+            "reference": null,
+            "mode": "individual",
+            "samples": 1,
+            "guard": "flag"
+          },
+          "judge_output": "--- R1 ---\n{\"score\":\"yes\",\"reasoning\":\"The submission explicitly states, \\\"four independent root causes, one per query,\\\" and lists a separate root cause for each of queries A, B, C, and D.\"}\n\n--- R2 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The response identifies optimizer-related causes for A, B, and C and a SQL translation cause for D, but it does not state that `QueryOptFlags.none()` repairs A\u2013C or that no optimizer setting changes D.\"\n}\n\n--- R3 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The response references the correct file and discusses negated is_in constraints, but attributes the issue to ColumnConstraints::resolve_deferred / has_value_constraint. It does not identify classify_negation as recording the negated is_in haystack via add_disallowed without checking nulls_equal.\"\n}\n\n--- R4 ---\n{\"score\":\"no\",\"reasoning\":\"The response identifies the relevant functions and notes that the negated membership's disallowed set is treated as null-excluding, causing `is_null() & ~is_in(..)` to fold to false. However, it does not explain the required mechanism: `resolve_deferred` marks the column `unsat` when `Nullability::Null` encounters a value constraint, and `has_value_constraint` counts the disallowed set as such a constraint.\"}\n\n--- R5 ---\n{\"score\":\"no\",\"reasoning\":\"The submission identifies that negated `is_in` is incorrectly treated as null-excluding when `nulls_equal=True`, but does not explain the required semantics: a missing value is not in the null-free haystack `[1]`, so negation yields true and the missing row satisfies both conditions. It also does not clarify that negated membership drops missing values only without `nulls_equal`.\"}\n\n--- R6 ---\n{\"score\":\"no\",\"reasoning\":\"The submission identifies query A's suspected root cause in `ColumnConstraints::resolve_deferred` / `has_value_constraint`, but does not trace the required optimizer call chain: `FilterConstraintRule::optimize_plan` registered under expression simplification \u2192 `merge_filter_constraints` \u2192 `model_and_chain` \u2192 conjunct classification via `classify_into_constraints`, including `classify_negation` and `classify_null` \u2192 `resolve_deferred`.\"}\n\n--- R7 ---\n{\"score\":\"no\",\"reasoning\":\"The submission mentions that a constraint is folded to `false`, but it does not explain that `merge_filter_constraints` returns the literal `false` for an impossible chain or that `SimplifyBooleanRule` replaces the filter with a `DataFrameScan` of an empty frame, yielding no rows without evaluating the mask.\"}\n\n--- R8 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission mentions `resolve_deferred` but does not list its callers or the required call chain: `resolve_deferred` is called only by `model_and_chain`, which is used by `merge_filter_constraints` and `and_chain_bounds`, with the latter used by `key_intervals` for asof-join predicate pushdown and `predicate_selectivity` for plan-statistics row estimates.\"\n}\n\n--- R9 ---\n{\"score\":\"no\",\"reasoning\":\"The submission does not explain any of the three required points: why computing the mask with `with_columns` avoids a rule that rewrites only filter predicates; why `QueryOptFlags.none()` works because the rule is not registered without expression simplification; or why negated membership alone is correct without an `is_null` requirement, with the disallowed set used only to detect contradictions and never emitted. It only provides a preliminary root-cause statement about negated `is_in` and null handling.\"}\n\n--- R10 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only identifies a preliminary root cause involving negated is_in and nulls_equal=True. It does not explain why the AND-chain walk leaves a disjunction (`|`) unsplit, why `ne_missing(1)` remains opaque, or why the empty results for nulls_equal=False and a haystack containing None are correct. It also omits the required distinction that missing comparisons remain missing under nulls_equal=False, whereas a missing value belongs to a haystack containing None under nulls_equal=True.\"}\n\n--- R11 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission does not discuss eager DataFrame.filter, the streaming engine, swapped conjunct order, or two chained filters. It therefore does not explain that these variants reach the same optimized plan through lazy optimization, order-independent constraint handling, and predicate pushdown merging chained filters.\"\n}\n\n--- R12 ---\n{\"score\":\"no\",\"reasoning\":\"For query A, the response identifies the incorrect treatment of negated `is_in` as null-excluding when `nulls_equal=True`, but does not propose either required fix: recording the negated membership only when `nulls_equal` is false, or restricting `resolve_deferred`'s missing-versus-value check to constraints that actually drop missing values.\"}\n\n--- R13 ---\n{\"score\":\"yes\",\"reasoning\":\"The submission explicitly identifies `ExprOrderSimplifier::rec`'s Ternary arm in `crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs` and explains that it snapshots the output ordering before incorporating the `when` mask's ordering, identifying the location where the ternary's observable order is decided.\"}\n\n--- R14 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission identifies that the Ternary arm snapshots output ordering before adding the predicate mask\u2019s ordering, but it does not explain that `output_observable = acc.accumulated_orders()` reads the two branches\u2019 accumulated orders, or that literal branches therefore report no observable order even though the predicate places a value in every row in the input\u2019s order.\"\n}\n\n--- R15 ---\n{\"score\":\"no\",\"reasoning\":\"The response identifies an ordering snapshot issue in the Ternary arm, but does not note the second mistake: when the predicate is the only ordered input and de-ordering is allowed, `if Some(node) == ternary_mask_node` sets the result ordering to empty.\"}\n\n--- R16 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission identifies `ExprOrderSimplifier::rec` and its ternary arm as query B\u2019s suspected root cause, but does not trace the required optimizer path: `CHECK_ORDER_OBSERVE` triggering `simplify_and_fetch_orderings`, followed by `SimplifyIRNodeOrder::simplify_ir_node_orders` handling `Select` through `ExprOrderSimplifier::simplify_projected_exprs`, which calls `rec` on the ternary.\"\n}\n\n--- R17 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only states that an upstream Sort is deleted due to ordering simplification. It does not explain that the Select arm sees no observed input order and marks its input edge unordered, that the Sort arm calls unlink_node because its output edge is unordered and it has no slice, or that the flags are consequently computed in the original row order [5, 1, 4, 2, 3].\"}\n\n--- R18 ---\n{\"score\":\"no\",\"reasoning\":\"The submission mentions a ternary ordering bug but does not explain why `.cum_sum()` of the flag is also wrong\u2014specifically, that its ternary input reports no ordering for it to observe. It also does not explain why string labels behave like integer literals.\"}\n\n--- R19 ---\n{\"score\":\"no\",\"reasoning\":\"The submission identifies a possible ternary ordering simplification bug, but does not explain the required behaviors of `then(pl.col(\\\"x\\\"))`, the bare comparison `pl.col(\\\"x\\\") > 1`, `with_columns`, or selecting `x` alongside the flag. It does not state that column branches and operands report the column's order, or that `with_columns` is an `HStack` retaining input columns and therefore observes input order.\"}\n\n--- R20 ---\n{\"score\":\"no\",\"reasoning\":\"The submission does not explain why `.head(3)` after `select` behaves correctly. It mentions deletion of an upstream sort in the ordering simplifier, but does not state that slice pushdown moves the slice into the sort or that the order simplifier preserves a sort carrying a slice.\"}\n\n--- R21 ---\n{\"score\":\"no\",\"reasoning\":\"The response does not explain why QueryOptFlags.none() behaves differently (because the order optimization pass does not run), nor why an eager DataFrame behaves differently (because it is already sorted and has no remaining sort operation for the optimizer to remove).\"}\n\n--- R22 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"For query B, the response identifies that the output ordering is read before the predicate's ordering is added, but it does not propose adding the predicate to the inputs accumulated before reading the result or removing the special case that empties it.\"\n}\n\n--- R23 ---\n{\"score\":\"no\",\"reasoning\":\"The submission identifies the projection-pushdown IR::Join arm in the correct file and says it flips coalescing to CoalesceColumns for an IEJoin. However, it does not identify the trigger as no right key being projected or explicitly explain that the change is made without checking whether the join is an equi join.\"}\n\n--- R24 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only notes that projection pushdown changes coalescing for a join rewritten to an IEJoin. It does not explain that resolve_join_where initially creates a left join with CrossAndFilter and coalescing off, or that try_rewrite_outer_iejoin rewrites it to an IEJoin with left_on = [x] and right_on = [y], making y an unprojected right key.\"}\n\n--- R25 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission mentions that projection pushdown changes coalesce to CoalesceColumns for an IEJoin, but does not explain that det_join_schema, through join_right_output_names in crates/polars-plan/src/plans/schema.rs, drops the right key y, whereas _join_impl dispatches to iejoin in polars-ops, which never coalesces and retains y, leaving the actual data with one more column than the planned schema.\"\n}\n\n--- R26 ---\n{\"score\":\"no\",\"reasoning\":\"The submission does not explain the streaming select lowering through `build_select_stream_with_ctx` to a `SimpleProjectionNode`, schema-based `index_of` positions, or the debug-only assertion. It also omits the required consequences: the planned position of `k` selecting physical `y`, `k_right` becoming `[0, 0]`, and `select(\\\"k\\\", \\\"k_right\\\")` returning the column named `y`.\"}\n\n--- R27 ---\n{\"score\":\"no\",\"reasoning\":\"The response mentions projection pushdown changing join coalescing, but does not explain why select(\\\"x\\\") returns both x and y on both engines: the planned join output already matches the requested columns, so no select remains in the plan to drop the physical y.\"}\n\n--- R28 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission does not explain the in-memory engine\u2019s handling of select(\\\"x\\\", \\\"k_right\\\"). It never mentions ColumnExpr or its behavior of looking up a column by its planned position and falling back to a name-based lookup when the name differs.\"\n}\n\n--- R29 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only briefly identifies a projection-pushdown coalescing issue for query C. It does not explain that the full collect and select(\\\"x\\\", \\\"y\\\", \\\"k_right\\\") project y, that how=\\\"inner\\\" produces an IEJoin or Range join type skipped by the inner-or-left-only arm, or that QueryOptFlags.none() disables projection pushdown.\"}\n\n--- R30 ---\n{\"score\":\"no\",\"reasoning\":\"The submission does not explain that the streaming engine executes the left inequality join through the in-memory fallback (`InMemoryJoin`), nor that this fallback is selected because the join is neither a pure equi join, a fused predicate, nor a range join. Its discussion of query C only addresses projection pushdown and coalescing for an IEJoin.\"}\n\n--- R31 ---\n{\"score\":\"no\",\"reasoning\":\"For query C, the response identifies that projection pushdown incorrectly enables coalescing for a join rewritten to an IEJoin, but it does not propose restricting coalescing to equi joins or requiring `JoinTypeOptionsIR::Equi` in the condition.\"}\n\n--- R32 ---\n{\n  \"score\": \"yes\",\n  \"reasoning\": \"Finding D identifies the `SetExpr::Values` arm of `SQLContext::process_query` in `crates/polars-sql/src/context.rs` as never calling `process_order_by`, correctly pinpointing that VALUES queries bypass the query's ORDER BY handling.\"\n}\n\n--- R33 ---\n{\"score\":\"no\",\"reasoning\":\"The response only identifies that the SetExpr::Values arm does not call process_order_by. It does not name the ORDER BY handling locations for the other bodies: execute_select_block reached through execute_select, the SetExpr::Query arm, process_union, and process_except_intersect.\"}\n\n--- R34 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only notes that the SetExpr::Values arm of process_query never calls process_order_by. It does not explain that execute_query calls process_limit_offset after process_query for every body, or that this preserves LIMIT/OFFSET and causes ORDER BY 1 LIMIT 2 to retain the first two rows as written.\"}\n\n--- R35 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only states that the SetExpr::Values arm never calls process_order_by. It does not explain why the subquery, parenthesized, and UNION ALL forms sort correctly, nor identify that their bodies pass through arms that apply ORDER BY.\"}\n\n--- R36 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission identifies that query D never calls `process_order_by`, but does not explain that `QueryOptFlags.none()` changes nothing because the sort is never put into the plan.\"\n}\n\n--- R37 ---\n{\"score\":\"no\",\"reasoning\":\"For query D, the response identifies that the SetExpr::Values arm never calls process_order_by, but does not propose applying it with the query's ORDER BY to the frame returned by process_values in that arm.\"}\n\n--- R38 ---\n{\"score\":\"no\",\"reasoning\":\"The submission identifies `SQLContext::process_query` and its `SetExpr::Values` arm as query D\u2019s root cause, but does not trace query D from `SQLContext::execute` through `execute_query` to `process_query`.\"}\n\n--- R39 ---\n{\n  \"score\": \"yes\",\n  \"reasoning\": \"The agent read the checkout\u2019s filter-constraint model using `cat -n crates/polars-plan/src/plans/aexpr/filter_constraint.rs` and additionally requested lines 415\u2013820 with `sed`. These reads cover the model containing `classify_negation` and `resolve_deferred`, even though the recorded command output is truncated.\"\n}\n\n--- R40 ---\n{\n  \"score\": \"yes\",\n  \"reasoning\": \"The agent ran `cat -n crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs | sed -n 1,420p` in the checkout, covering the BinaryExpr / Ternary arm at lines 269 onward. A preceding grep explicitly identified that arm and its location.\"\n}\n\n--- R41 ---\n{\n  \"score\": \"yes\",\n  \"reasoning\": \"The agent reads the checkout\u2019s projection pushdown join arm with `sed -n 880,1230p crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs`, covering the coalescing condition and the assignment to `JoinCoalesce::CoalesceColumns` around lines 1035\u20131055. The agent also locates `det_join_schema` and reads the join output schema code with `sed -n 80,260p crates/polars-plan/src/plans/schema.rs`.\"\n}\n\n--- R42 ---\n{\n  \"score\": \"yes\",\n  \"reasoning\": \"The agent inspected `process_query` in the checkout's SQL context, `crates/polars-sql/src/context.rs`. The recorded actions include a grep locating its definition at line 1115 and `sed -n 740,1300p` covering that definition, followed by further inspection of its branches and call sites.\"\n}\n\n--- R43 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The submission attributes query A to constraint resolution and plan simplification, specifically folding `is_null() & ~is_in(..)` to `false`. It does not attribute the issue to evaluation of the `is_null`, `is_in`, or `not` mask-computation kernels.\"\n}\n\n--- R44 ---\n{\"score\":\"no\",\"reasoning\":\"The response explicitly identifies \u201cfour independent root causes, one per query\u201d and assigns a distinct cause to each of A, B, C, and D. It does not attribute two or more queries to one shared root cause.\"}\n\n--- R45 ---\n{\"score\":\"no\",\"reasoning\":\"The response attributes query C to projection pushdown incorrectly changing join coalescing after an IEJoin rewrite, not to the inequality join kernel matching incorrect rows or computing incorrect values.\"}\n\n--- R46 ---\n{\n  \"score\": \"no\",\n  \"reasoning\": \"The response attributes query D to SQLContext::process_query in the SQL processing layer, specifically its failure to call process_order_by, rather than to the query optimizer.\"\n}\n\n--- guard ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains preliminary technical findings and a log of repository investigation commands and outputs. It does not address the evaluator or provide instructions or commentary about how the work should be scored.\"}",
+          "usage": {
+            "input_tokens": 213294,
+            "cache_read_input_tokens": 189056,
+            "output_tokens": 4595,
+            "reasoning_output_tokens": 638,
+            "total_tokens": 217889,
+            "cost_usd": 0.11333159999999999,
+            "models": {
+              "openai/gpt-6.1-sol": {
+                "input_tokens": 213294,
+                "cache_read_input_tokens": 189056,
+                "output_tokens": 4595,
+                "reasoning_output_tokens": 638,
+                "total_tokens": 217889,
+                "cost_usd": 0.11333159999999999
+              }
+            }
+          },
+          "guard": {
+            "flagged": false,
+            "reasoning": "The submission contains preliminary technical findings and a log of repository investigation commands and outputs. It does not address the evaluator or provide instructions or commentary about how the work should be scored."
+          }
+        }
+      },
+      {
+        "name": "test_output",
+        "weight": 1.0,
+        "detail": {
+          "score": 1.0,
+          "criteria": [
+            {
+              "name": "read_classify_negation_in_aexpr_filter_constraint",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.09375,
+              "description": "Displayed the body of classify_negation in crates/polars-plan/src/plans/aexpr/filter_constraint.rs",
+              "reasoning": "classify_negation was displayed"
+            },
+            {
+              "name": "read_resolve_deferred_in_aexpr_filter_constraint",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.09375,
+              "description": "Displayed the body of resolve_deferred in crates/polars-plan/src/plans/aexpr/filter_constraint.rs",
+              "reasoning": "resolve_deferred was displayed"
+            },
+            {
+              "name": "read_merge_filter_constraints_in_aexpr_filter_constraint",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed the body of merge_filter_constraints in crates/polars-plan/src/plans/aexpr/filter_constraint.rs",
+              "reasoning": "merge_filter_constraints was displayed"
+            },
+            {
+              "name": "opened_optimizer_filter_constraint",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed crates/polars-plan/src/plans/optimizer/filter_constraint.rs",
+              "reasoning": "crates/polars-plan/src/plans/optimizer/filter_constraint.rs was displayed"
+            },
+            {
+              "name": "opened_simplify_ordering_expr",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.09375,
+              "description": "Displayed crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs including ternary_mask_node",
+              "reasoning": "crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs was displayed with ternary_mask_node"
+            },
+            {
+              "name": "opened_simplify_ordering_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.0625,
+              "description": "Displayed crates/polars-plan/src/plans/optimizer/simplify_ordering/mod.rs including unlink_node",
+              "reasoning": "crates/polars-plan/src/plans/optimizer/simplify_ordering/mod.rs was displayed with unlink_node"
+            },
+            {
+              "name": "opened_projection_pushdown_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.09375,
+              "description": "Displayed crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs including CoalesceColumns",
+              "reasoning": "crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs was displayed with CoalesceColumns"
+            },
+            {
+              "name": "read_join_right_output_names_in_plans_schema",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.0625,
+              "description": "Displayed the body of join_right_output_names in crates/polars-plan/src/plans/schema.rs",
+              "reasoning": "join_right_output_names was displayed"
+            },
+            {
+              "name": "read_try_rewrite_outer_iejoin_in_join_predicate_pruning",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed the body of try_rewrite_outer_iejoin in crates/polars-plan/src/plans/optimizer/predicate_pushdown/join/predicate_pruning.rs",
+              "reasoning": "try_rewrite_outer_iejoin was displayed"
+            },
+            {
+              "name": "opened_join_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed crates/polars-ops/src/frame/join/mod.rs including JoinTypeOptions::IEJoin",
+              "reasoning": "crates/polars-ops/src/frame/join/mod.rs was displayed with JoinTypeOptions::IEJoin"
+            },
+            {
+              "name": "opened_nodes_simple_projection",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.0625,
+              "description": "Displayed crates/polars-stream/src/nodes/simple_projection.rs",
+              "reasoning": "crates/polars-stream/src/nodes/simple_projection.rs was displayed"
+            },
+            {
+              "name": "read_build_select_stream_with_ctx_in_physical_plan_lower_expr",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed the body of build_select_stream_with_ctx in crates/polars-stream/src/physical_plan/lower_expr.rs",
+              "reasoning": "build_select_stream_with_ctx was displayed"
+            },
+            {
+              "name": "read_resolve_join_where_in_dsl_to_ir_join",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed the body of resolve_join_where in crates/polars-plan/src/plans/conversion/dsl_to_ir/join.rs",
+              "reasoning": "resolve_join_where was displayed"
+            },
+            {
+              "name": "read_process_query_in_src_context",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.09375,
+              "description": "Displayed the body of process_query in crates/polars-sql/src/context.rs",
+              "reasoning": "process_query was displayed"
+            },
+            {
+              "name": "read_execute_query_in_src_context",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed the body of execute_query in crates/polars-sql/src/context.rs",
+              "reasoning": "execute_query was displayed"
+            },
+            {
+              "name": "opened_expressions_column",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Displayed crates/polars-expr/src/expressions/column.rs",
+              "reasoning": "crates/polars-expr/src/expressions/column.rs was displayed"
+            },
+            {
+              "name": "searched_CoalesceColumns",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Searched the tree for CoalesceColumns",
+              "reasoning": "CoalesceColumns was searched"
+            },
+            {
+              "name": "searched_process_order_by",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Searched the tree for process_order_by",
+              "reasoning": "process_order_by was searched"
+            },
+            {
+              "name": "answer_grounded",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.03125,
+              "description": "Every cited file and named golden routine was displayed",
+              "reasoning": "every citation was displayed"
+            },
+            {
+              "name": "modified_code_penalty",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": -0.15625,
+              "description": "PENALTY: the agent modified source during the read-only investigation",
+              "reasoning": "no source modification"
+            }
+          ],
+          "kind": "programmatic"
+        }
+      }
+    ]
+  }
+}

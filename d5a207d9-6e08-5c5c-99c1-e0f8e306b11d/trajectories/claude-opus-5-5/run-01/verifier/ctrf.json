@@ -1,0 +1,119 @@
+{
+  "results": {
+    "tool": {
+      "name": "rewardkit"
+    },
+    "summary": {
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "pending": 0,
+      "other": 0,
+      "start": 1793784397112,
+      "stop": 1793784397112
+    },
+    "tests": [
+      {
+        "name": "read_classify_negation_in_aexpr_filter_constraint",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_resolve_deferred_in_aexpr_filter_constraint",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_merge_filter_constraints_in_aexpr_filter_constraint",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_optimizer_filter_constraint",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_simplify_ordering_expr",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_simplify_ordering_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_projection_pushdown_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_join_right_output_names_in_plans_schema",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_try_rewrite_outer_iejoin_in_join_predicate_pruning",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_join_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_nodes_simple_projection",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_build_select_stream_with_ctx_in_physical_plan_lower_expr",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_resolve_join_where_in_dsl_to_ir_join",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_process_query_in_src_context",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_execute_query_in_src_context",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_expressions_column",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_CoalesceColumns",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_process_order_by",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "answer_grounded",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "modified_code_penalty",
+        "status": "passed",
+        "duration": 0
+      }
+    ]
+  }
+}

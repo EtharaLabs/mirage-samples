@@ -1,0 +1,154 @@
+{
+  "results": {
+    "tool": {
+      "name": "rewardkit"
+    },
+    "summary": {
+      "tests": 27,
+      "passed": 23,
+      "failed": 4,
+      "skipped": 0,
+      "pending": 0,
+      "other": 0,
+      "start": 1794663601617,
+      "stop": 1794663601617
+    },
+    "tests": [
+      {
+        "name": "read__update_gather_sorted_flag_in_ops_gather",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_take_unchecked_in_ops_gather",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_agg_first_in_aggregations_dispatch",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_agg_last_non_null_in_aggregations_dispatch",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read_is_sorted_by_first_idx_in_group_by_position",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_agg_with_scalar_identity_in_column_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_new_from_index_in_ops_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_agg_min_in_aggregations_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_last_non_null_in_chunked_array_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_create_groups_from_sorted_in_group_by_into_groups",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_n_unique_in_unique_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_partition_to_groups_in_kernels_sort_partition",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_update_sorted_flag_before_append_in_ops_append",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read__convert_series_to_indices_in_utils_getitem",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_aggregate_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_chunked_array_cast",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_series_general",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "opened_gather_mod",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "opened_expressions_slice",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_group_by_dynamic",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__sort_or_hash_inner_in_hash_join_sort_merge",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_join_in_sorted_join_inner",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_sorted_join_left",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched__update_gather_sorted_flag",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_set_sorted_flag",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "answer_grounded",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "modified_code_penalty",
+        "status": "passed",
+        "duration": 0
+      }
+    ]
+  }
+}

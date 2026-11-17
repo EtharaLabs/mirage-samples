@@ -1,0 +1,134 @@
+{
+  "results": {
+    "tool": {
+      "name": "rewardkit"
+    },
+    "summary": {
+      "tests": 23,
+      "passed": 17,
+      "failed": 6,
+      "skipped": 0,
+      "pending": 0,
+      "other": 0,
+      "start": 1794704987906,
+      "stop": 1794704987906
+    },
+    "tests": [
+      {
+        "name": "read_scatter_in_series_scatter",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_scatter_impl_in_series_scatter",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_scatter_in_series_series",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read_sum_horizontal_in_ops_horizontal",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_function_expr_schema",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_sum_output_dtype_in_aggregate_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_mean_horizontal_in_ops_horizontal",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_dispatch_misc",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read___rfloordiv___in_series_series",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read___rtruediv___in_series_series",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read__arithmetic_in_series_series",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read___floordiv___in_series_series",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "opened_type_coercion_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_should_cast_column_in_file_scan_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_conversion_stack_opt",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__join_asof_in_asof_mod",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__join_asof_by_in_asof_groups",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_compute_asof_join_in_joins_asof_join",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_is_sorted_impl_in_ops_various",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_sum_output_dtype",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "searched_ExtraColumnsPolicy",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "answer_grounded",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "modified_code_penalty",
+        "status": "passed",
+        "duration": 0
+      }
+    ]
+  }
+}

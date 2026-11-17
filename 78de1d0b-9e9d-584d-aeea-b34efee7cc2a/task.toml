@@ -1,0 +1,88 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+
+artifacts = [
+    "/workspace/answer.md",
+    "/logs/agent/trajectory.json",
+    "/logs/agent/answer.md",
+    { source = "/logs/agent/sessions", destination = "agent-sessions" },
+    { source = "/logs/agent/completions", destination = "agent-completions" },
+    "/logs/artifacts/agent.patch",
+]
+
+[task]
+name = "mirage/78de1d0b-9e9d-584d-aeea-b34efee7cc2a"
+version = "2.0.0"
+description = "Read-only issue localization in polars at a commit where five separate defects make ordinary operations return quietly wrong values: a ticket reports five operations (scatter of a timestamp into a nanosecond column, sum_horizontal over Int8 columns, a number floor-divided by a Series, a strict cast of a struct column in a lazy query, and an asof join on a sorted Categorical key) whose results are wrong without any error; find how many root causes there are, the routine and file behind each, why each harmless variant behaves, and how each wrong result comes out of the routines that trust the faulty decision."
+authors = [{ name = "shreyansh.parashar", email = "shreyansh.parashar@ethara.ai" }]
+keywords = ["rust", "python", "issue_localization", "polars", "dtypes", "casting", "joins", "multi-cause", "read-only"]
+
+[metadata]
+instance_id = "polars-silent-values-cluster"
+harbor_commit = "b53b8134e1241686dca7759af188f987ecc48e8b"
+repo = "pola-rs/polars"
+base_commit = "5eaa75417658a55b0f248d2bedd6fe919d64feae"
+language = "rust"
+family = "issue_localization"
+category = "software-engineering"
+difficulty = "hard"
+null_floor = 0.0
+discrimination_weight = 0.5
+reward_type = "bounded_continuous"
+pass-rates = []
+difficulty_rationale = "Five independent defects in five parts of the library: the Python bindings' scatter, which converts new values to the column's logical dtype only for categorical and decimal columns and otherwise reinterprets physical integers, so a microsecond timestamp lands in a nanosecond column a thousand times too small (polars-python series/scatter.rs), a horizontal sum that adds small integers in their own dtype instead of widening them as the vertical sum does, mirrored in the planned schema (polars-ops horizontal.rs, function_expr/schema.rs), a reflected floor-division operator that performs true division and on which the reflected true division depends (py-polars series.py), a plan-conversion rule that checks strict casts against a scan schema policy that ignores extra struct fields, so a strict struct cast becomes non-strict (conversion/type_coercion/mod.rs, dsl/file_scan/mod.rs), and an asof join that converts its keys to their physical representation before searching, so a Categorical key is searched by registration-order codes while its sortedness is checked on the strings, a conversion repeated in the by= join and in the streaming engine's asof node (polars-ops asof/mod.rs and asof/groups.rs, polars-stream nodes/joins/asof_join.rs). The ticket gives symptoms only and does not say how many causes there are; the causes span Rust kernels, Rust bindings, Python operators and the planner, every operation has harmless variants that must be explained, the checkout cannot be built or run in the task image, all five fixes were merged after the frontier models' training cutoff, and the agent has 60 minutes for all five."
+solution_rationale = "scatter in polars-python series/scatter.rs casts values to the logical dtype only for categorical, enum and decimal columns and otherwise casts the physical representation, so microseconds are written as nanoseconds, microsecond durations as milliseconds and day counts as milliseconds; sum_horizontal in polars-ops horizontal.rs adds the columns at their supertype and widens only Boolean, never applying sum_output_dtype, and the SumHorizontal schema arm does the same, so Int8 sums wrap and mean_horizontal divides the wrapped sum; Series.__rfloordiv__ in series.py calls _arithmetic(other, 'div', 'div_<>_rhs'), true division, and __rtruediv__ relies on it; the AExpr::Cast arm of TypeCoercionRule builds a CastColumnsPolicy with MissingColumnsPolicy::Insert and ExtraColumnsPolicy::Ignore, should_cast_column answers Ok(true) for any struct field mismatch, and the arm rewrites the strict cast as CastOptions::NonStrict; AsofJoin::_join_asof in polars-ops asof/mod.rs converts both keys with to_physical_repr, so Categorical keys are searched by their codes, which follow registration order, while the ensure_sorted_arg check in _check_asof_columns compares the decoded strings; the forward-only scan states then return the last band (backward) or none (forward) for every row, and _join_asof_by and polars-stream's compute_asof_join repeat the conversion."
+verification_rationale = "A separate verifier scores the agent's read-only investigation twice. The deterministic channel replays the agent's own tool calls and credits only definitions and files actually displayed from the checkout, plus searches, citation grounding and a penalty for any source change. A 46-criterion judged rubric scores the explanation against a reference built from the base commit, the five upstream fixes and a reproduction of every operation on the released 2.1.0 wheel (56 checked claims), about a fifth of its weight for each of four causes and less for the operator cause, weighted four to one over the deterministic channel."
+[verifier]
+timeout_sec = 1800.0
+environment_mode = "separate"
+network_mode = "public"
+
+[verifier.env]
+HG_INSTANCE_ID = "polars-silent-values-cluster"
+ANTHROPIC_API_BASE = "${ANTHROPIC_API_BASE:-https://api.anthropic.com}"
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1200
+cpus = 2
+memory_mb = 4096
+storage_mb = 8192
+gpus = 0
+
+[[verifier.collect]]
+command = "git -C /workspace/pola-rs__polars add -A && git -C /workspace/pola-rs__polars diff --cached > /logs/artifacts/agent.patch"
+
+[agent]
+timeout_sec = 3600
+user = "1000:1000"
+network_mode = "allowlist"
+allowed_hosts = ["docs.python.org"]
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 3600
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
+os = "linux"
+workdir = "/workspace"
+
+[upstream_provenance]
+origin = "derived"
+provenance_date = "2026-11-04"
+source_kind = "public_repository"
+upstream_benchmark = "polars PRs #30420 (621b9b7e47f0), #30433 (a31c7ebaef77), #30452 (0260c77513f3), #29231 (0b47007ab65f) and #30554 (ca27922c6afe), for issues #21474, #21515, #28587 and #30540 (#30452 links no issue)"
+license = "MIT"
+modifications = [
+    "checkout pinned at 5eaa75417658, the sole parent of cc12c943627d (PR #30310), a main-branch commit from before all five fixes, so all five defects are live",
+    "comments and docstrings stripped, Rust and Python test files removed, and version history replaced by a single base commit",
+]
+
+[upstream_provenance.source]
+canonical_repo = "https://github.com/pola-rs/polars"
+fork_ancestry_digest = "sha256:276160b510a09f92875f3892b17f9fd1f43a0ba47c7a57f525a581e180150458"
+base_commit = "5eaa75417658a55b0f248d2bedd6fe919d64feae"
+event_timestamp = "2026-10-30T08:27:13Z"

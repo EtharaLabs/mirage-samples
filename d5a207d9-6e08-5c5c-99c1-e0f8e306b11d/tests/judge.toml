@@ -1,0 +1,470 @@
+[judge]
+judge = "anthropic/claude-fable-5-1"
+mode = "individual"
+samples = 1
+timeout = 900
+guard = "flag"
+files = ["/app/answer.md", "/app/process.md"]
+
+[scoring]
+aggregation = "weighted-mean"
+
+[[criterion]]
+id = "R1"
+name = "R1"
+description = "The response states that there are four distinct root causes, one behind each of the four queries, rather than one shared cause."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R2"
+name = "R2"
+description = "The response states that queries A, B and C come from optimizer decisions, which is why `QueryOptFlags.none()` repairs them, while query D comes from the SQL translation and no optimizer setting changes it."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R3"
+name = "R3"
+description = "The response identifies `classify_negation` in `crates/polars-plan/src/plans/aexpr/filter_constraint.rs` as recording the haystack of the negated `is_in` as disallowed values (`add_disallowed`) without looking at the `nulls_equal` flag."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R4"
+name = "R4"
+description = "The response explains that `ColumnConstraints::resolve_deferred` marks the column impossible (`unsat`) when a required missing value (`Nullability::Null`, from `is_null`) meets a value constraint, and that `has_value_constraint` counts the negated membership's disallowed set as such a constraint."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R5"
+name = "R5"
+description = "The response explains why that verdict is wrong here: with `nulls_equal=True` a missing value is not a member of the null-free haystack `[1]`, so `~is_in` is true rather than missing for it and the missing row satisfies both conditions; treating the negated membership as dropping missing values holds only without `nulls_equal`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R6"
+name = "R6"
+description = "The response traces query A from the filter to the decision: `FilterConstraintRule::optimize_plan` (registered by the optimizer under expression simplification) calls `merge_filter_constraints`, which calls `model_and_chain`, which classifies each conjunct of the `AND` chain (`classify_into_constraints`, with the negation handled by `classify_negation` and `is_null` by `classify_null`) and then runs `resolve_deferred`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R7"
+name = "R7"
+description = "The response explains that for an impossible chain `merge_filter_constraints` returns the literal `false`, and that `SimplifyBooleanRule` then replaces the filter with an empty scan (`DataFrameScan` of an empty frame), which is why the query returns no rows without ever evaluating the mask."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R8"
+name = "R8"
+description = "The response lists the callers of the deciding helper: `resolve_deferred` is called only from `model_and_chain`, and `model_and_chain` is used both by `merge_filter_constraints` and by `and_chain_bounds`, whose users are the asof-join predicate pushdown (`key_intervals`) and the row estimate in the plan statistics (`predicate_selectivity`)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R9"
+name = "R9"
+description = "The response explains why the mask computed with `with_columns` is right (the rule rewrites filter predicates only), why `QueryOptFlags.none()` is right (the rule is not registered without expression simplification), and why the negated membership alone is right (no `is_null` requirement, and the disallowed set is never emitted, only used to detect contradictions)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R10"
+name = "R10"
+description = "The response explains why `|` and `ne_missing(1)` behave (the `AND`-chain walk does not split a disjunction, and the null-preserving comparison is kept opaque) and why `nulls_equal=False` and a haystack containing `None` give an empty result that is correct there (missing compares as missing under `nulls_equal=False`; a haystack with `None` is not modelled, and with `nulls_equal=True` a missing value is its member)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R11"
+name = "R11"
+description = "The response explains why the eager `DataFrame.filter`, the streaming engine, the swapped conditions and the two chained filters are all wrong: they reach the same optimized plan (eager filtering goes through the lazy optimizer, the verdict does not depend on conjunct order, and predicate pushdown merges chained filters into one chain)."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R12"
+name = "R12"
+description = "The response proposes, for query A, recording the negated membership in `classify_negation` only when `nulls_equal` is false, or basing the missing-versus-value check in `resolve_deferred` only on constraints that really drop missing values."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R13"
+name = "R13"
+description = "The response identifies the `BinaryExpr` / `Ternary` arm of `ExprOrderSimplifier::rec` in `crates/polars-plan/src/plans/optimizer/simplify_ordering/expr.rs` as the place where the ternary's observable order is decided."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R14"
+name = "R14"
+description = "The response explains that the arm reads the accumulated orders of the two branches (`output_observable = acc.accumulated_orders()`) before the predicate's order is added, so a ternary whose branches are literals reports no observable order although the predicate places a value in every row in the input's order."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R15"
+name = "R15"
+description = "The response notes the second instance of the same mistake in that arm: when the predicate is the only ordered input and de-ordering is allowed, the arm sets the result to empty (`if Some(node) == ternary_mask_node`)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R16"
+name = "R16"
+description = "The response traces query B to the decision: the optimizer runs `simplify_and_fetch_orderings` when `CHECK_ORDER_OBSERVE` is set, and `SimplifyIRNodeOrder::simplify_ir_node_orders` handles the `Select` through `ExprOrderSimplifier::simplify_projected_exprs`, which calls `rec` on the ternary."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R17"
+name = "R17"
+description = "The response explains how the wrong order comes out: the `Select` arm sees no observed input order and marks its input edge unordered, and the `Sort` arm then removes the sort (`unlink_node`) because its output edge is unordered and it carries no slice, so the flags are computed in the original row order `[5, 1, 4, 2, 3]`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R18"
+name = "R18"
+description = "The response explains why `.cum_sum()` of the flag is also wrong (its input, the ternary, reports no order for it to observe) and why string labels behave like integer literals."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R19"
+name = "R19"
+description = "The response explains why `then(pl.col(\"x\"))`, the bare comparison `pl.col(\"x\") > 1`, `with_columns` and selecting `x` next to the flag behave: a column branch or operand reports the column's order, and a `with_columns` (an `HStack` that keeps the input columns) observes the input order."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R20"
+name = "R20"
+description = "The response explains why `.head(3)` after the `select` behaves: slice pushdown moves the slice into the sort, and the order simplifier keeps a sort that carries a slice."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R21"
+name = "R21"
+description = "The response explains why `QueryOptFlags.none()` and the eager `DataFrame` behave (the order pass does not run, and an eager frame is already sorted with no sort left to remove)."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R22"
+name = "R22"
+description = "The response proposes, for query B, adding the predicate to the inputs whose orders are accumulated before the result is read (and dropping the special case that empties it)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R23"
+name = "R23"
+description = "The response identifies the join arm of `ProjectionPushdownVisitor::pushdown` in `crates/polars-plan/src/plans/optimizer/projection_pushdown/mod.rs` as switching the join to `JoinCoalesce::CoalesceColumns` when no right key is projected, without checking that the join is an equi join."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R24"
+name = "R24"
+description = "The response explains how the left `join_where` reaches that arm: `resolve_join_where` makes it a left join with `CrossAndFilter` and coalescing off, and predicate pushdown (`try_rewrite_outer_iejoin`) rewrites it into an `IEJoin` with `left_on = [x]` and `right_on = [y]`, so the inequality operand `y` counts as an unprojected right key."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R25"
+name = "R25"
+description = "The response explains that with coalescing on, the planned join schema (`det_join_schema`, through `join_right_output_names` in `crates/polars-plan/src/plans/schema.rs`) drops the right key `y`, while the inequality join that runs (`_join_impl` dispatching to `iejoin` in polars-ops) never coalesces and still returns `y`, so the data has one column more than the plan."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R26"
+name = "R26"
+description = "The response explains that the streaming engine lowers the select to a `SimpleProjectionNode` (through `build_select_stream_with_ctx`) whose column positions come from the planned schema (`index_of`), checked only by a debug assertion, so the planned position of `k` picks the physical `y`: `k_right` becomes `[0, 0]`, and in `select(\"k\", \"k_right\")` the column comes out under the name `y`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R27"
+name = "R27"
+description = "The response explains why `select(\"x\")` returns `x` and `y` on both engines: the planned join output already equals the requested columns, so no select is left in the plan to drop the physical `y`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R28"
+name = "R28"
+description = "The response explains why the in-memory engine gets `select(\"x\", \"k_right\")` right: its column expression (`ColumnExpr`) looks a column up by its planned position but falls back to a lookup by name when the name differs."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R29"
+name = "R29"
+description = "The response explains why the full collect, `select(\"x\", \"y\", \"k_right\")`, `how=\"inner\"` and `QueryOptFlags.none()` behave: the first two project `y`, an inner `join_where` becomes an `IEJoin` or `Range` join type that the arm (inner or left only) skips, and projection pushdown is off without optimizations."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R30"
+name = "R30"
+description = "The response explains that the streaming engine runs this left inequality join through its in-memory join fallback (`InMemoryJoin`), because the join is neither a pure equi join, nor a fused predicate, nor a range join."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R31"
+name = "R31"
+description = "The response proposes, for query C, turning coalescing on only for equi joins, for example by also requiring `JoinTypeOptionsIR::Equi` in that condition."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R32"
+name = "R32"
+description = "The response identifies the `SetExpr::Values` arm of `SQLContext::process_query` in `crates/polars-sql/src/context.rs` as returning the frame from `process_values` without applying the query's `ORDER BY` (`process_order_by`)."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R33"
+name = "R33"
+description = "The response names the places that apply `ORDER BY` for the other bodies: `execute_select_block` (reached through `execute_select`) for a `SELECT`, the `SetExpr::Query` arm for a parenthesized body, `process_union`, and `process_except_intersect`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R34"
+name = "R34"
+description = "The response explains that `LIMIT` and `OFFSET` still apply because `execute_query` calls `process_limit_offset` after `process_query` for every body, which is why `ORDER BY 1 LIMIT 2` keeps the first two rows as written."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R35"
+name = "R35"
+description = "The response explains why the subquery form, the parenthesized form and the `UNION ALL` form sort correctly: their bodies go through arms that apply `ORDER BY`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R36"
+name = "R36"
+description = "The response explains that `QueryOptFlags.none()` changes nothing for query D because the sort is never put into the plan."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R37"
+name = "R37"
+description = "The response proposes, for query D, applying `process_order_by` with the query's `ORDER BY` to the frame from `process_values` in that arm."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R38"
+name = "R38"
+description = "The response traces query D from `SQLContext::execute` through `execute_query` to `process_query`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R39"
+name = "R39"
+description = "The agent reads, in the checkout, `classify_negation` or `resolve_deferred` in the filter-constraint model."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-1", dimension = "process" }
+
+[[criterion]]
+id = "R40"
+name = "R40"
+description = "The agent reads, in the checkout, the `BinaryExpr` / `Ternary` arm of the order simplifier in `simplify_ordering/expr.rs`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-2", dimension = "process" }
+
+[[criterion]]
+id = "R41"
+name = "R41"
+description = "The agent reads, in the checkout, the coalescing condition in the projection pushdown join arm and the join output schema code."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-3", dimension = "process" }
+
+[[criterion]]
+id = "R42"
+name = "R42"
+description = "The agent reads, in the checkout, `process_query` in the SQL context."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-4", dimension = "process" }
+
+[[criterion]]
+id = "R43"
+name = "R43"
+description = "The response attributes query A to the evaluation of `is_null`, `is_in` or `not` (the kernels that compute the mask) rather than to a rewrite of the plan."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R44"
+name = "R44"
+description = "The response attributes two or more of the four queries to one shared root cause."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R45"
+name = "R45"
+description = "The response attributes query C to the inequality join kernel matching the wrong rows or computing wrong values."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R46"
+name = "R46"
+description = "The response attributes query D to the query optimizer."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }

@@ -1,0 +1,118 @@
+/opt/openhands-venv/lib/python3.12/site-packages/fastmcp/server/auth/providers/jwt.py:10: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+It will be compatible before version 2.0.0.
+  from authlib.jose import JsonWebKey, JsonWebToken
+[92m17:56:00 - openhands:INFO[0m: utils.py:152 - config.toml not found: [Errno 2] No such file or directory: 'config.toml'. Toml values have not been applied.
+[92m17:56:00 - openhands:INFO[0m: llm_registry.py:87 - [LLM registry cdf72a51-9ad9-4428-9475-8978f3761bb7]: Registering service for agent
+[92m17:56:00 - openhands:WARNING[0m: local_runtime.py:160 - Initializing LocalRuntime. WARNING: NO SANDBOX IS USED. This is an experimental feature, please report issues to https://github.com/OpenHands/OpenHands/issues. `run_as_openhands` will be ignored since the current user will be used to launch the server. We highly recommend using a sandbox (eg. DockerRuntime) unless you are running in a controlled environment.
+User ID: 1000. Username: agent.
+[92m17:56:00 - openhands:WARNING[0m: local_runtime.py:251 - Workspace base path is set to /workspace. It will be used as the path for the agent to run in. Be careful, the agent can EDIT files in this directory!
+[92m17:56:00 - openhands:INFO[0m: local_runtime.py:268 - Using workspace directory: /workspace
+[92m17:56:00 - openhands:INFO[0m: local_runtime.py:633 - Creating a server
+[92m17:56:00 - openhands:INFO[0m: local_runtime.py:673 - Starting server with command: ['/opt/openhands-venv/bin/python', '-u', '-m', 'openhands.runtime.action_execution_server', '34296', '--working-dir', '/workspace', '--plugins', 'agent_skills', 'jupyter', '--username', 'agent', '--user-id', '1000', '--no-enable-browser']
+[92m17:56:00 - openhands:INFO[0m: local_runtime.py:366 - [runtime 5feda744-6dcd-4e-a9515b075eb4efc] Waiting for server to become ready at http://localhost:34296...
+[92m17:56:03 - openhands:INFO[0m: local_runtime.py:715 - server: /opt/openhands-venv/lib/python3.12/site-packages/fastmcp/server/auth/providers/jwt.py:10: AuthlibDeprecationWarning: authlib.jose module is deprecated, please use joserfc instead.
+[92m17:56:03 - openhands:INFO[0m: local_runtime.py:715 - server: It will be compatible before version 2.0.0.
+[92m17:56:03 - openhands:INFO[0m: local_runtime.py:715 - server: from authlib.jose import JsonWebKey, JsonWebToken
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:WARNING[0m: action_execution_server.py:654 - Starting Action Execution Server
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: action_execution_server.py:680 - Starting file viewer server
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: file_viewer_server.py:92 - File viewer server URL saved to /tmp/oh-server-url: http://localhost:35074
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: file_viewer_server.py:93 - Starting file viewer server on port 35074
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: action_execution_server.py:685 - File viewer server started at http://localhost:35074
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: action_execution_server.py:700 - Initializing ActionExecutor...
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: action_execution_server.py:217 - No max memory limit set, using all available system memory
+[92m17:56:04 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:04 - openhands:INFO[0m: action_execution_server.py:232 - Browser environment is not enabled in config
+[92m17:56:08 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:08 - openhands:INFO[0m: action_execution_server.py:366 - Initializing by running 2 bash commands...
+[92m17:56:09 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:09 - openhands:INFO[0m: action_execution_server.py:710 - ActionExecutor initialized.
+[92m17:56:09 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:09 - openhands:INFO[0m: action_execution_server.py:720 - Initializing MCP Proxy Manager...
+[92m17:56:09 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:09 - openhands.runtime.mcp.proxy.manager:INFO[0m: manager.py:58 - No MCP servers configured for FastMCP Proxy, skipping initialization.
+[92m17:56:09 - openhands:INFO[0m: local_runtime.py:715 - server: [92m17:56:09 - openhands.runtime.mcp.proxy.manager:INFO[0m: manager.py:92 - No MCP servers configured for FastMCP Proxy, skipping mount.
+[92m17:56:12 - openhands:INFO[0m: base.py:1061 - Successfully configured git: name=openhands, email=openhands@all-hands.dev
+[92m17:56:12 - openhands:INFO[0m: base.py:890 - [runtime 5feda744-6dcd-4e-a9515b075eb4efc] Selected repo: None, loading microagents from /workspace/.openhands/microagents (inside runtime)
+[92m17:56:12 - openhands:INFO[0m: local_runtime.py:715 - server: [Errno 2] No such file or directory: '/workspace/.openhands_instructions'
+[92m17:56:12 - openhands:INFO[0m: base.py:637 - [runtime 5feda744-6dcd-4e-a9515b075eb4efc] Attempting to list files in repository microagents directory: /workspace/.openhands/microagents
+[92m17:56:12 - openhands:INFO[0m: memory.py:261 - Loading user workspace microagents: []
+[92m17:56:12 - openhands:WARNING[0m: mcp_config.py:351 - No search engine API key found, skipping search engine
+[92m17:56:12 - openhands:INFO[0m: utils.py:334 - Loaded 0 MCP tools: []
+[92m17:56:12 - openhands:INFO[0m: agent.py:169 - Setting 0 MCP tools for agent CodeActAgent: []
+[92m17:56:12 - openhands:INFO[0m: agent.py:181 - Tools updated for agent CodeActAgent, total 6: ['execute_bash', 'think', 'finish', 'execute_ipython_cell', 'task_tracker', 'str_replace_editor']
+[92m17:56:12 - openhands:INFO[0m: state_tracker.py:94 - AgentController 5feda744-6dcd-4e-a9515b075eb4efc - created new state. start_id: 0
+[92m17:56:12 - openhands:INFO[0m: agent_controller.py:668 - [Agent Controller 5feda744-6dcd-4e-a9515b075eb4efc] Setting agent(CodeActAgent) state from AgentState.LOADING to AgentState.RUNNING
+[92m17:56:12 - openhands:INFO[0m: conversation_stats.py:65 - Saved conversation stats
+[92m18:33:43 - openhands:ERROR[0m: agent_controller.py:375 - [Agent Controller 5feda744-6dcd-4e-a9515b075eb4efc] Error while running the agent (session ID: 5feda744-6dcd-4e-a9515b075eb4efc): litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"OAuth access token has been revoked."},"request_id":"req_011Ch3JQEKdGjTBSH9zz1ThF"}
+Traceback (most recent call last):
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/llms/anthropic/chat/handler.py", line 445, in completion
+    response = client.post(
+               ^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/http_handler.py", line 802, in post
+    raise e
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/http_handler.py", line 784, in post
+    response.raise_for_status()
+  File "/opt/openhands-venv/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'http://192.168.65.254:8765/v1/messages'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/main.py", line 2329, in completion
+    response = anthropic_chat_completions.completion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/llms/anthropic/chat/handler.py", line 460, in completion
+    raise AnthropicError(
+litellm.llms.anthropic.common_utils.AnthropicError: {"type":"error","error":{"type":"authentication_error","message":"OAuth access token has been revoked."},"request_id":"req_011Ch3JQEKdGjTBSH9zz1ThF"}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/openhands-venv/lib/python3.12/site-packages/openhands/controller/agent_controller.py", line 373, in _step_with_exception_handling
+    await self._step()
+  File "/opt/openhands-venv/lib/python3.12/site-packages/openhands/controller/agent_controller.py", line 901, in _step
+    action = self.agent.step(self.state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/openhands/agenthub/codeact_agent/codeact_agent.py", line 219, in step
+    response = self.llm.completion(**params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/tenacity/__init__.py", line 331, in wrapped_f
+    return copy(f, *args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/tenacity/__init__.py", line 470, in __call__
+    do = self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/tenacity/__init__.py", line 371, in iter
+    result = action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/tenacity/__init__.py", line 393, in <lambda>
+    self._add_action_func(lambda rs: rs.outcome.result())
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.12.16-linux-aarch64-gnu/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.12.16-linux-aarch64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/openhands-venv/lib/python3.12/site-packages/tenacity/__init__.py", line 473, in __call__
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/openhands/llm/llm.py", line 342, in wrapper
+    resp: ModelResponse = self._completion_unwrapped(*args, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/utils.py", line 1356, in wrapper
+    raise e
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/utils.py", line 1231, in wrapper
+    result = original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/main.py", line 3733, in completion
+    raise exception_type(
+          ^^^^^^^^^^^^^^^
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2273, in exception_type
+    raise e
+  File "/opt/openhands-venv/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 594, in exception_type
+    raise AuthenticationError(
+litellm.exceptions.AuthenticationError: litellm.AuthenticationError: AnthropicException - {"type":"error","error":{"type":"authentication_error","message":"OAuth access token has been revoked."},"request_id":"req_011Ch3JQEKdGjTBSH9zz1ThF"}
+[92m18:33:43 - openhands:ERROR[0m: loop.py:25 - STATUS$ERROR_LLM_AUTHENTICATION
+[92m18:33:43 - openhands:INFO[0m: agent_controller.py:668 - [Agent Controller 5feda744-6dcd-4e-a9515b075eb4efc] Setting agent(CodeActAgent) state from AgentState.RUNNING to AgentState.ERROR
+[92m18:33:43 - openhands:INFO[0m: conversation_stats.py:65 - Saved conversation stats
+[92m18:33:43 - openhands:INFO[0m: agent_controller.py:668 - [Agent Controller 5feda744-6dcd-4e-a9515b075eb4efc] Setting agent(CodeActAgent) state from AgentState.ERROR to AgentState.ERROR
+[92m18:33:44 - openhands:INFO[0m: local_runtime.py:715 - server: [92m18:33:44 - openhands:INFO[0m: action_execution_server.py:739 - Shutting down MCP Proxy Manager...
+[92m18:33:44 - openhands:INFO[0m: local_runtime.py:710 - server log thread received exit signal.
+[92m18:33:44 - openhands:INFO[0m: local_runtime.py:728 - server log output thread finished.

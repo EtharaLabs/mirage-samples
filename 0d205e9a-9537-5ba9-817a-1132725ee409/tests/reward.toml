@@ -1,0 +1,21 @@
+[scoring.test_output]
+aggregation = "weighted-sum"
+
+# The graded reward: the judged rubric weighs four times the deterministic channel.
+[[reward]]
+name = "reward"
+aggregation = "weighted-mean"
+weights = { judge = 4.0, test_output = 1.0 }
+
+# Each channel on its own, under the names the gate, the score check and the delivery read.
+# A [[reward]] spec averages every input it does not exclude, so the other channel is
+# weighted 0 explicitly.
+[[reward]]
+name = "pytest"
+aggregation = "weighted-mean"
+weights = { test_output = 1.0, judge = 0.0 }
+
+[[reward]]
+name = "rubric"
+aggregation = "weighted-mean"
+weights = { judge = 1.0, test_output = 0.0 }

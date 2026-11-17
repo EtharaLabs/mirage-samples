@@ -1,0 +1,470 @@
+[judge]
+judge = "anthropic/claude-fable-5-1"
+mode = "individual"
+samples = 1
+timeout = 900
+guard = "flag"
+files = ["/app/answer.md", "/app/process.md"]
+
+[scoring]
+aggregation = "weighted-mean"
+
+[[criterion]]
+id = "R1"
+name = "R1"
+description = "The response states that there are five distinct root causes, one behind each of the five operations, rather than one shared cause."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R2"
+name = "R2"
+description = "The response states that the five faults are independent, so that fixing any one of them leaves the other operations wrong."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R3"
+name = "R3"
+description = "The response identifies the function `scatter` in `crates/polars-python/src/series/scatter.rs` as storing the new value without converting it to the column's logical dtype."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R4"
+name = "R4"
+description = "The response explains that `scatter` converts values to the column's logical dtype only for categorical or enum and decimal columns, and otherwise casts the values' physical representation to the column's physical type (`to_physical_repr().cast(... to_physical())`), so a microsecond count is stored and read as nanoseconds, giving 1970-01-20 20:53:57.300."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R5"
+name = "R5"
+description = "The response explains the other two reported values: a `timedelta` becomes a microsecond duration of 1,000,000, stored into the millisecond series as 1000 seconds, and a `date` is a count of days (19844) read as milliseconds, 00:00:19.844."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R6"
+name = "R6"
+description = "The response traces the calls: `Series.scatter` wraps the value in a one-value series (microseconds for a Python `datetime`) and calls `PySeries::scatter`, the only caller of `scatter`; `ts[1] = ...` goes through `Series.__setitem__` and `df[0, \"ts\"] = ...` through `DataFrame.__setitem__`, which assigns into the column series."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R7"
+name = "R7"
+description = "The response explains that `scatter_impl` writes the physical values and `from_physical_unchecked` relabels them with the column's dtype without converting them."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R8"
+name = "R8"
+description = "The response explains why the variants behave: a microsecond column has the value's own unit, a `pl.Series` of the column's dtype and a `date` into a `Date` series share the physical unit, integer series have no logical layer, and `when/then/otherwise` casts the literal with a real temporal cast instead of calling `scatter`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R9"
+name = "R9"
+description = "The response proposes, for operation A, casting the new values to the column's logical dtype before taking their physical representation whenever the column is temporal and the value's temporal dtype differs."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R10"
+name = "R10"
+description = "The agent reads, in the checkout, the `scatter` function in `scatter.rs`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-1", dimension = "process" }
+
+[[criterion]]
+id = "R11"
+name = "R11"
+description = "The response identifies `sum_horizontal` in `crates/polars-ops/src/series/ops/horizontal.rs` as adding the `Int8` columns in their common supertype `Int8`, so the sums wrap to -128 and -56."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R12"
+name = "R12"
+description = "The response contrasts this with the vertical sum, whose `sum_output_dtype` (in `polars-core`) widens `Int8`, `UInt8`, `Int16` and `UInt16` to `Int64`, and states that the horizontal sum never applies it and widens only `Boolean`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R13"
+name = "R13"
+description = "The response explains that the planned schema makes the same choice: the `SumHorizontal` arm in `function_expr/schema.rs` takes the supertype and widens only `Boolean`, which is why the collected schema says `Int8`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R14"
+name = "R14"
+description = "The response lists the callers of `sum_horizontal`: the expression dispatch in `polars-expr` (`dispatch/misc.rs`), `mean_horizontal`, and the `DataFrame` method of the same name, and notes that `pl.sum_horizontal` builds the expression through the Python bindings and that `DataFrame.sum_horizontal()` and `mean_horizontal()` select the same expressions."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R15"
+name = "R15"
+description = "The response explains that `mean_horizontal` divides the wrapped sum by the count of non-null values, giving -64.0 and -28.0, and why the `UInt8`, `Int16` and three-column totals come out as 44, -5536 and 44."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R16"
+name = "R16"
+description = "The response explains why the variants behave: `Int64` columns do not overflow, an `Int8` column with an `Int64` column is added in `Int64`, `Boolean` is widened, `list.sum()` widens through `sum_output_dtype`, and the fold starts from an `Int32` literal."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R17"
+name = "R17"
+description = "The response proposes, for operation B, computing the output dtype with `sum_output_dtype` from the supertype, casting the columns to it before adding, and applying the same rule in the `SumHorizontal` schema arm."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R18"
+name = "R18"
+description = "The agent reads, in the checkout, `sum_horizontal` in `horizontal.rs`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-2", dimension = "process" }
+
+[[criterion]]
+id = "R19"
+name = "R19"
+description = "The response identifies `Series.__rfloordiv__` in `py-polars/src/polars/series/series.py` as computing true division: it returns `_arithmetic(other, \"div\", \"div_<>_rhs\")`, the division with the number on the left, without flooring."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R20"
+name = "R20"
+description = "The response explains that Python calls `__rfloordiv__` for `-7.5 // s` because the float cannot floor-divide by a `Series`, and how `_arithmetic` reaches the native division, including that a float number with an integer series becomes a one-value `Float64` series divided with `div`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R21"
+name = "R21"
+description = "The response explains that `__rtruediv__` casts the series to `Float64` and calls `__rfloordiv__`, so true division with the number on the left works only because `__rfloordiv__` does not floor, and that a repair has to change both."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R22"
+name = "R22"
+description = "The response explains why the variants behave: division of two integers rounds toward negative infinity, `s // -7.5` and `Series // Series` go through `__floordiv__`, which evaluates the floor-division expression, `pl.lit(-7.5) // pl.col(\"s\")` is that expression, and `/` is true division."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R23"
+name = "R23"
+description = "The response proposes, for operation C, making `__rfloordiv__` floor-divide (for example through the floor-division expression with the number on the left) and making `__rtruediv__` call the division directly."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R24"
+name = "R24"
+description = "The agent reads, in the checkout, `__rfloordiv__` in `series.py`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-3", dimension = "process" }
+
+[[criterion]]
+id = "R25"
+name = "R25"
+description = "The response identifies the `AExpr::Cast` arm of `TypeCoercionRule` (`optimize_expr`) in `crates/polars-plan/src/plans/conversion/type_coercion/mod.rs` as turning the strict cast into a non-strict one."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R26"
+name = "R26"
+description = "The response explains the mechanism: for a strict cast the arm builds a `CastColumnsPolicy` with `missing_struct_fields: MissingColumnsPolicy::Insert` and `extra_struct_fields: ExtraColumnsPolicy::Ignore`, `should_cast_column` returns `Ok(true)` for any struct field mismatch, and on `Ok(true)` the cast is replaced with `CastOptions::NonStrict` (or `Overflowing` for two primitive numeric dtypes)."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R27"
+name = "R27"
+description = "The response explains how `CastColumnsPolicy::should_cast_column` in `crates/polars-plan/src/dsl/file_scan/mod.rs` treats struct fields: a target field the input lacks is accepted under `Insert` and an input field the target lacks under `Ignore`, and notes that this is the policy scans use to reconcile file schemas."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R28"
+name = "R28"
+description = "The response traces the path: converting the lazy query runs the conversion optimizer (`stack_opt.rs`), which applies `TypeCoercionRule` with `has_inputs` true for a select over a frame; `with_columns`, `LazyFrame.cast` and `DataFrame.cast` build the same cast."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R29"
+name = "R29"
+description = "The response explains that the executed non-strict struct cast matches fields by name, filling `x` and `y` with nulls and dropping `b` for the target `{\"a\": Int64}`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R30"
+name = "R30"
+description = "The response explains why the variants behave: the eager `Series.cast` does not go through plan conversion, so its strict struct cast raises; the same field names are a legitimate cast; `strict=False` never enters the arm; and the strict cast of 300 to `Int8` is a narrowing integer cast the policy refuses with an error, so the strict cast stays and raises."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R31"
+name = "R31"
+description = "The response proposes, for operation D, building the policy with `ExtraColumnsPolicy::Raise` (or otherwise refusing field mismatches for strict casts), so the strict cast is kept and raises."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R32"
+name = "R32"
+description = "The agent reads, in the checkout, the `AExpr::Cast` arm of the type-coercion rule or `should_cast_column`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-4", dimension = "process" }
+
+[[criterion]]
+id = "R33"
+name = "R33"
+description = "The response attributes operation A to the temporal cast kernels or to `scatter_impl` rather than to `scatter` skipping the logical cast."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R34"
+name = "R34"
+description = "The response attributes two or more of the five operations to one shared root cause."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R35"
+name = "R35"
+description = "The response attributes operation B to a wrong integer addition kernel rather than to the missing widening before the addition."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R36"
+name = "R36"
+description = "The response attributes operation C to the native division or floor-division kernels rather than to which operation `__rfloordiv__` calls."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R37"
+name = "R37"
+description = "The response attributes operation D to the struct cast implementation in `polars-core` rather than to the plan conversion rewriting the strict cast."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R38"
+name = "R38"
+description = "The response identifies `AsofJoin::_join_asof` in `crates/polars-ops/src/frame/join/asof/mod.rs` as converting both join keys with `to_physical_repr()` before the asof search, so a `Categorical` key is searched by its category codes rather than by its strings."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R39"
+name = "R39"
+description = "The response explains that category codes follow the order in which the categories were first registered in the session (with `grades` alive, e=0 up to a=4), so the A-Z sorted keys are descending as codes, and that the asof kernels assume ascending keys: the backward scan keeps one forward-only position in the right keys and settles on the last band, \"d\", for every loan, and the forward scan finds no band for any loan."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R40"
+name = "R40"
+description = "The response explains why the sortedness check passes: `_check_asof_columns` accepts the keys because their physical dtype is primitive, and its `ensure_sorted_arg` check runs on the categorical series, whose `is_sorted` compares the decoded strings, so it confirms A-Z order while the search uses the codes."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R41"
+name = "R41"
+description = "The response names the other places that repeat the conversion: `AsofJoinBy::_join_asof_by` in `asof/groups.rs`, used for `by=` joins, and `compute_asof_join` in `crates/polars-stream/src/nodes/joins/asof_join.rs`, used by the streaming engine."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R42"
+name = "R42"
+description = "The response traces the path: `DataFrame.join_asof` runs the query in the in-memory engine, whose join executor calls `_join_impl` in `polars-ops`, and its `JoinType::AsOf` arm calls `_join_asof`, or `_join_asof_by` when `by` columns are given; the streaming engine's asof node calls `compute_asof_join` instead, which is why its wrong answer differs."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R43"
+name = "R43"
+description = "The response explains why the variants behave: `String` keys are compared as strings, an `Enum`'s codes follow its declared order, which is also its sort order, a session where `grades` was never built registers the categories A-Z so the codes happen to ascend, and frames sorted by `to_physical()` fail the string-based sortedness check."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R44"
+name = "R44"
+description = "The response proposes, for operation E, comparing categorical keys by their strings (for example casting them to `String`, or to their lexical ranks) instead of taking their physical codes before the search, in all three places."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R45"
+name = "R45"
+description = "The agent reads, in the checkout, `_join_asof` in `asof/mod.rs`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-6", dimension = "process" }
+
+[[criterion]]
+id = "R46"
+name = "R46"
+description = "The response attributes operation E to the asof search kernels or scan states, or to the categorical sortedness check, rather than to the keys being converted to their codes before the search."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }

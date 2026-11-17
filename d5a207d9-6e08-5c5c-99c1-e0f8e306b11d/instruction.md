@@ -1,0 +1,41 @@
+A data team using the dataframe library in this checkout has filed one ticket that bundles four lazy queries whose results are quietly wrong. Nothing raises an error and nothing is logged; the queries return rows, just not the right ones. The team does not know whether the four share a cause.
+
+Query A, a filter for missing values.
+
+```python
+lf = pl.LazyFrame({"a": [1, None, 4]})
+out = lf.filter(pl.col("a").is_null() & ~pl.col("a").is_in([1], nulls_equal=True)).collect()
+```
+
+The team expects the row whose `a` is missing, because with `nulls_equal=True` a missing value is not a member of `[1]`, so the negated membership keeps it. `out` is empty. The same mask computed with `with_columns` is `[False, True, False]`. The result is also empty on an eager `DataFrame.filter`, on the streaming engine, with the two conditions swapped, and with the two conditions split into two chained `filter` calls. With `collect(optimizations=pl.QueryOptFlags.none())` the missing row comes back. The negated membership alone keeps `[None, 4]`, joining the two conditions with `|` behaves, and `ne_missing(1)` in place of the negated membership keeps the missing row. With `nulls_equal=False`, or with a haystack that itself contains `None`, the result is empty, which is what the team expects there.
+
+Query B, a flag after a sort.
+
+```python
+lf = pl.LazyFrame({"x": [5, 1, 4, 2, 3]}).sort("x")
+flag = lf.select(pl.when(pl.col("x") > 1).then(1).otherwise(0)).collect()
+```
+
+The team expects `[0, 1, 1, 1, 1]` and gets `[1, 0, 1, 1, 1]`: the flags follow the order of the unsorted input. A running total, `.cum_sum()` of the same flag, gives `[1, 1, 2, 3, 4]`, and string labels from `then` and `otherwise` are scrambled the same way. The streaming engine gives the same wrong order. The order is right with `QueryOptFlags.none()`, on an eager `DataFrame`, when the `then` branch is a column such as `pl.col("x")`, for the bare comparison `pl.col("x") > 1`, with `with_columns` in place of `select`, when `x` is selected next to the flag, and when `.head(3)` is taken after the `select`.
+
+Query C, a left inequality join.
+
+```python
+left = pl.LazyFrame({"x": [1, 2], "k": [9, 8]})
+right = pl.LazyFrame({"y": [0, 5], "k": [5, 7]})
+j = left.join_where(right, pl.col("x") >= pl.col("y"), how="left")
+```
+
+Both left rows match only the right row with `y = 0`, so `k_right` should be 5 in both rows. `j.select("x", "k_right").collect()` returns `k_right` as `[0, 0]`, which are the `y` values. `j.select("k", "k_right").collect()` returns two columns named `k` and `y`, and no `k_right`. `j.select("x").collect()` returns two columns, `x` and `y`. With `engine="in-memory"`, `select("x", "k_right")` is right, but `select("x")` still returns the extra `y` column. The full `j.collect()` is right, and so are `select("x", "y", "k_right")`, the same query with `how="inner"`, and anything collected with `QueryOptFlags.none()`.
+
+Query D, SQL over literal rows.
+
+```python
+pl.SQLContext().execute("VALUES (3, 'c'), (1, 'a'), (2, 'b') ORDER BY 1", eager=True)
+```
+
+The rows come back as written, `(3, 'c'), (1, 'a'), (2, 'b')`, not sorted. `ORDER BY column_1 DESC` is ignored in the same way, and `ORDER BY 1 LIMIT 2` returns the first two rows as written, so the limit applies while the order does not. `LIMIT 2 OFFSET 1` behaves. `pl.sql` gives the same result, and `QueryOptFlags.none()` changes nothing. Selecting from the rows as a subquery, `SELECT * FROM (VALUES ...) AS v ORDER BY 1`, sorts correctly, and so do the parenthesized form `(VALUES ...) ORDER BY 1` and two `VALUES` lists combined with `UNION ALL ... ORDER BY 1`.
+
+Work out from the actual source in this checkout what is wrong, rather than from release notes, the tracker, or what you recall of this library. State how many distinct root causes there are and which query or queries each one explains. For each root cause: name the routine where the wrong decision is made and its repository-relative file path; if that decision is made by a helper, list every routine that calls the helper, and if it is repeated inline in several places, name every one of them; say exactly what the decision is based on and why it is wrong for the reported inputs, including why each variant the team found harmless behaves; trace the path from the call the team makes to that routine; name the routines downstream that trust what it decided, and explain how each reported wrong answer comes out of them; and propose the smallest repair at the point of the decision.
+
+Leave the repository exactly as you found it and modify no files inside it. Write your full explanation to `/workspace/answer.md`, outside the checkout, as soon as you have a first version, keep that file up to date as you learn more, and give the same explanation as your final message; the file is what is graded, even if your session is cut short.

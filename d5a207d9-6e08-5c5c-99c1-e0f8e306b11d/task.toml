@@ -1,0 +1,89 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+
+artifacts = [
+    "/workspace/answer.md",
+    "/logs/agent/trajectory.json",
+    "/logs/agent/answer.md",
+    { source = "/logs/agent/sessions", destination = "agent-sessions" },
+    { source = "/logs/agent/completions", destination = "agent-completions" },
+    "/logs/artifacts/agent.patch",
+]
+
+[task]
+name = "mirage/d5a207d9-6e08-5c5c-99c1-e0f8e306b11d"
+version = "1.0.0"
+description = "Read-only issue localization in polars at a commit where four separate defects make lazy queries return quietly wrong rows: a ticket reports four queries (a filter for missing values with a negated membership, a when/then/otherwise flag after a sort, a left join_where followed by a selection, and SQL over a VALUES list with ORDER BY) whose results are wrong without any error; find how many root causes there are, the routine and file behind each, why each harmless variant behaves, and how each wrong result comes out of the routines that trust the faulty decision."
+authors = [{ name = "shreyansh.parashar", email = "shreyansh.parashar@ethara.ai" }]
+keywords = ["rust", "python", "issue_localization", "polars", "query-optimizer", "sql", "multi-cause", "read-only"]
+
+[metadata]
+instance_id = "polars-query-plan-cluster"
+harbor_commit = "b53b8134e1241686dca7759af188f987ecc48e8b"
+repo = "pola-rs/polars"
+base_commit = "5eaa75417658a55b0f248d2bedd6fe919d64feae"
+language = "rust"
+family = "issue_localization"
+category = "software-engineering"
+difficulty = "hard"
+null_floor = 0.0
+discrimination_weight = 0.5
+reward_type = "bounded_continuous"
+pass-rates = []
+difficulty_rationale = "Four independent defects in four parts of the query engine: an impossible-filter verdict in the filter-constraint model that treats a negated membership with nulls_equal as dropping missing values (aexpr/filter_constraint.rs), an order simplifier that reads a ternary's observable order before adding its predicate, so a sort under literal branches is removed (simplify_ordering/expr.rs), projection pushdown switching key coalescing on for the inequality join a left join_where becomes, so the planned schema drops a column the join still returns and the streaming engine picks columns by stale positions (projection_pushdown/mod.rs, schema.rs, simple_projection.rs), and a SQL VALUES body whose ORDER BY is never applied (polars-sql context.rs). The ticket gives symptoms only and does not say how many causes there are; three causes are optimizer decisions whose effects surface far from the deciding routine, every query has harmless variants that must be explained, the checkout cannot be built or run in the task image, and all four fixes were merged after the frontier models' training cutoff."
+solution_rationale = "classify_negation records a negated is_in haystack without checking nulls_equal and ColumnConstraints::resolve_deferred counts it as a value constraint against is_null, so merge_filter_constraints returns false and SimplifyBooleanRule empties the filter; the BinaryExpr/Ternary arm of ExprOrderSimplifier::rec takes the accumulated orders before the predicate, so the Select reports no observed order and SimplifyIRNodeOrder unlinks the Sort; the join arm of ProjectionPushdownVisitor::pushdown sets CoalesceColumns for a left IEJoin, join_right_output_names drops the right operand from the planned schema while iejoin still returns it, and SimpleProjectionNode picks columns by planned position; the SetExpr::Values arm of SQLContext::process_query never calls process_order_by, while execute_query still applies LIMIT and OFFSET."
+verification_rationale = "A separate verifier scores the agent's read-only investigation twice. The deterministic channel replays the agent's own tool calls and credits only definitions and files actually displayed from the checkout, plus searches, citation grounding and a penalty for any source change. A 46-criterion judged rubric scores the explanation against a reference built from the base commit, the four upstream fixes and a reproduction of every query on the released 2.1.0 wheel (45 checked claims), about a quarter of its weight per optimizer root cause and a sixth for the SQL cause, weighted four to one over the deterministic channel."
+
+[verifier]
+timeout_sec = 1800.0
+environment_mode = "separate"
+network_mode = "public"
+
+[verifier.env]
+HG_INSTANCE_ID = "polars-query-plan-cluster"
+ANTHROPIC_API_BASE = "${ANTHROPIC_API_BASE:-https://api.anthropic.com}"
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1200
+cpus = 2
+memory_mb = 4096
+storage_mb = 8192
+gpus = 0
+
+[[verifier.collect]]
+command = "git -C /workspace/pola-rs__polars add -A && git -C /workspace/pola-rs__polars diff --cached > /logs/artifacts/agent.patch"
+
+[agent]
+timeout_sec = 5400
+user = "1000:1000"
+network_mode = "allowlist"
+allowed_hosts = ["docs.python.org"]
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 3600
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
+os = "linux"
+workdir = "/workspace"
+
+[upstream_provenance]
+origin = "derived"
+provenance_date = "2026-11-04"
+source_kind = "public_repository"
+upstream_benchmark = "polars PRs #30310 (cc12c943627d), #30315 (ffb83ddceada), #30525 (efe925ae9d69) and #30468 (f1e093dae99c), for issues #30299 and #30519 (#30310 and #30468 link no issue)"
+license = "MIT"
+modifications = [
+    "checkout pinned at the sole parent of cc12c943627d (PR #30310), the earliest of the four fixes, so all four defects are live",
+    "comments and docstrings stripped, Rust and Python test files removed, and version history replaced by a single base commit",
+]
+
+[upstream_provenance.source]
+canonical_repo = "https://github.com/pola-rs/polars"
+fork_ancestry_digest = "sha256:276160b510a09f92875f3892b17f9fd1f43a0ba47c7a57f525a581e180150458"
+base_commit = "5eaa75417658a55b0f248d2bedd6fe919d64feae"
+event_timestamp = "2026-10-26T12:56:39Z"

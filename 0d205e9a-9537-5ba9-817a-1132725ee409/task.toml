@@ -1,0 +1,89 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+
+artifacts = [
+    "/workspace/answer.md",
+    "/logs/agent/trajectory.json",
+    "/logs/agent/answer.md",
+    { source = "/logs/agent/sessions", destination = "agent-sessions" },
+    { source = "/logs/agent/completions", destination = "agent-completions" },
+    "/logs/artifacts/agent.patch",
+]
+
+[task]
+name = "mirage/0d205e9a-9537-5ba9-817a-1132725ee409"
+version = "1.0.0"
+description = "Read-only issue localization in polars at a commit where five separate defects make sortedness give wrong answers: a ticket reports five pipelines (a positional lookup, a rolling first over empty windows, a rolling per-window slice, an aggregated constant column, and a join on a sorted float key) whose summaries come out quietly wrong; find how many root causes there are, the routine and file behind each, why each harmless variant behaves, and how each wrong answer comes out of the routines that trust sortedness."
+authors = [{ name = "shreyansh.parashar", email = "shreyansh.parashar@ethara.ai" }]
+keywords = ["rust", "python", "issue_localization", "polars", "sorted-flag", "multi-cause", "read-only"]
+
+[metadata]
+instance_id = "polars-sortedness-cluster"
+harbor_commit = "b53b8134e1241686dca7759af188f987ecc48e8b"
+repo = "pola-rs/polars"
+base_commit = "3a8b583f8b341fe25dd1f4c31487ca3b1da73126"
+language = "rust"
+family = "issue_localization"
+category = "software-engineering"
+difficulty = "hard"
+null_floor = 0.0
+discrimination_weight = 0.5
+reward_type = "bounded_continuous"
+pass-rates = []
+difficulty_rationale = "Five independent defects produce the same family of symptoms: a gather that decides its sorted marker from two input markers (gather.rs), per-group first/min aggregations that copy the input marker past the missing entries of empty groups (dispatch.rs), a group-order predicate that treats every slice group set as ordered (position.rs), and a scalar-column aggregation that keeps the sorted marker of a materialized constant after adding missing entries (column/mod.rs), and a sorted-merge join kernel in polars-arrow whose IEEE comparisons never match NaN although the marker that selects it is true (sorted_join/inner.rs, left.rs). The ticket gives symptoms only and does not say how many causes there are; each cause sits in a different crate area from the consumers that show it (reductions, run-counting distinct counts, the sort fast path, the sorted group-by fast path), each pipeline has a harmless variant that must be explained, the checkout cannot be built or run in the task image, and all five fixes were merged after the frontier models' training cutoff."
+solution_rationale = "_update_gather_sorted_flag (gather.rs) ignores where missing entries land; Series::agg_first and its two siblings (aggregations/dispatch.rs) copy the input marker without checking the missing entries of empty groups; GroupsType::is_sorted_by_first_idx (group_by/position.rs) answers true for overlapping slices that a per-window slice offset made non-monotonic; Column::agg_with_scalar_identity (column/mod.rs) keeps the ascending marker new_from_index put on a materialized constant after with_validity adds missing entries. Every consumer then trusts a marker that lies, except in the join, where sorted_join::inner::join and sorted_join::left::join compare with PartialOrd while the hash join uses total equality."
+verification_rationale = "A separate verifier scores the agent's read-only investigation twice. The deterministic channel replays the agent's own tool calls and credits only definitions and files actually displayed from the checkout, plus searches, citation grounding and a penalty for any source change. A 62-criterion judged rubric scores the explanation against a reference built from the base commit, the five upstream fixes and a reproduction of every pipeline on the released 2.1.0 wheel, about a fifth of its weight per root cause, weighted four to one over the deterministic channel."
+
+[verifier]
+timeout_sec = 1800.0
+environment_mode = "separate"
+network_mode = "public"
+
+[verifier.env]
+HG_INSTANCE_ID = "polars-sortedness-cluster"
+ANTHROPIC_API_BASE = "${ANTHROPIC_API_BASE:-https://api.anthropic.com}"
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1200
+cpus = 2
+memory_mb = 4096
+storage_mb = 8192
+gpus = 0
+
+[[verifier.collect]]
+command = "git -C /workspace/pola-rs__polars add -A && git -C /workspace/pola-rs__polars diff --cached > /logs/artifacts/agent.patch"
+
+[agent]
+timeout_sec = 5400
+user = "1000:1000"
+network_mode = "allowlist"
+allowed_hosts = ["docs.python.org"]
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 3600
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
+os = "linux"
+workdir = "/workspace"
+
+[upstream_provenance]
+origin = "derived"
+provenance_date = "2026-11-03"
+source_kind = "public_repository"
+upstream_benchmark = "polars PRs #30427 (9cfb74722853), #30431 (ad25ea47fcd3), #30439 (4cf4fa120d48) , #30461 (22c1bb73b192) and #30434 (e1849960ac), for issues #30426, #30428, #30432, #30326 and #30076"
+license = "MIT"
+modifications = [
+    "checkout pinned at the sole parent of 9cfb74722853 (PR #30427), the earliest of the five fixes, so all five defects are live",
+    "comments and docstrings stripped, Rust and Python test files removed, and version history replaced by a single base commit",
+]
+
+[upstream_provenance.source]
+canonical_repo = "https://github.com/pola-rs/polars"
+fork_ancestry_digest = "sha256:44d471193098c7db9826d9e5e70d55db3d9f140cedbb7dc659c9f98a57376c30"
+base_commit = "3a8b583f8b341fe25dd1f4c31487ca3b1da73126"
+event_timestamp = "2026-10-29T15:28:14Z"

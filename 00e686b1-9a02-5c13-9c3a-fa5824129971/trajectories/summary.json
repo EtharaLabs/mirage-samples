@@ -1,0 +1,32 @@
+{
+  "instance_id": "00e686b1-9a02-5c13-9c3a-fa5824129971",
+  "models": {
+    "claude-opus-5-5": {
+      "n_runs": 1,
+      "pytest": {
+        "mean": 0.9706,
+        "median": 0.9706,
+        "min": 0.9706,
+        "max": 0.9706,
+        "stdev": 0.0,
+        "n": 1
+      },
+      "rubric": {
+        "mean": 0.2042,
+        "median": 0.2042,
+        "min": 0.2042,
+        "max": 0.2042,
+        "stdev": 0.0,
+        "n": 1
+      },
+      "reward": {
+        "mean": 0.3575,
+        "median": 0.3575,
+        "min": 0.3575,
+        "max": 0.3575,
+        "stdev": 0.0,
+        "n": 1
+      }
+    }
+  }
+}

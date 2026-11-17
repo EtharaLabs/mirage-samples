@@ -1,0 +1,46 @@
+{
+    "task": {
+        "path": "<HOST>/hrun/pandas-silent-dtypes-60"
+    },
+    "trial_name": "pandas-silent-dtypes-60__f89kyYU",
+    "trials_dir": "<HOST>/hrun/jobs/t5-dtypes-60m",
+    "agent_setup_timeout_multiplier": 6.0,
+    "agent": {
+        "name": "openhands",
+        "model_name": "anthropic/claude-opus-5-5",
+        "extra_allowed_hosts": [
+            "192.168.65.0/24",
+            "172.16.0.0/12",
+            "0.250.250.254/32",
+            "192.168.5.0/24"
+        ],
+        "kwargs": {
+            "version": "0.62.0",
+            "python_version": 3.12,
+            "max_iterations": 600,
+            "model_info": {
+                "max_output_tokens": 128000,
+                "max_input_tokens": 200000
+            },
+            "num_retries": 10,
+            "temperature": 1.0,
+            "caching_prompt": true
+        },
+        "env": {
+            "LLM_TIMEOUT": "900",
+            "LLM_NATIVE_TOOL_CALLING": "true",
+            "LLM_RETRY_MIN_WAIT": "60",
+            "LLM_RETRY_MAX_WAIT": "1800",
+            "LLM_RETRY_MULTIPLIER": "2.0",
+            "UV_DEFAULT_INDEX": "http://192.168.65.254:8799/simple/",
+            "UV_INDEX_URL": "http://192.168.65.254:8799/simple/",
+            "MIRAGE_REASONING_EFFORT": "high",
+            "MIRAGE_AGENT_PROMPT_CACHE": "off",
+            "MIRAGE_AGENT_THINKING": "off",
+            "MIRAGE_AGENT_EFFORT": "off",
+            "ANTHROPIC_BASE_URL": "http://192.168.65.254:8765",
+            "ANTHROPIC_API_KEY": "inte****ret"
+        }
+    },
+    "job_id": "700f74e3-c0ab-4d0b-9307-199622c77045"
+}

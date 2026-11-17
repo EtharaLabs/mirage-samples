@@ -1,0 +1,74 @@
+{
+  "instance_id": "6ffc6d6d-0988-58ef-8129-c72093f48bf5",
+  "model": "claude-opus-5-5",
+  "n_runs": 1,
+  "agent": "openhands",
+  "agent_version": "0.62.0",
+  "dimensions": {
+    "pytest": {
+      "mean": 0.9615,
+      "median": 0.9615,
+      "min": 0.9615,
+      "max": 0.9615,
+      "stdev": 0.0,
+      "n": 1
+    },
+    "rubric": {
+      "mean": 0.2832,
+      "median": 0.2832,
+      "min": 0.2832,
+      "max": 0.2832,
+      "stdev": 0.0,
+      "n": 1
+    },
+    "reward": {
+      "mean": 0.4189,
+      "median": 0.4189,
+      "min": 0.4189,
+      "max": 0.4189,
+      "stdev": 0.0,
+      "n": 1
+    }
+  },
+  "runs": [
+    {
+      "run": "run-01",
+      "harbor_trial": "pandas-silent-dtypes-60__f89kyYU",
+      "pytest": 0.9615,
+      "rubric": 0.2832,
+      "reward": 0.4189,
+      "tokens": {
+        "input_fresh": 114,
+        "cache_read": 3955760,
+        "cache_write": 210764,
+        "output": 270621,
+        "reasoning": 61849
+      }
+    }
+  ],
+  "pass_at_k": {
+    "threshold": 0.7,
+    "note": "computed here; harbor's requires binary 0/1 rewards",
+    "k": {
+      "1": 0.0
+    }
+  },
+  "harbor_ran_on": {
+    "6ffc6d6d-0988-58ef-8129-c72093f48bf5": {
+      "version": "unknown",
+      "is_editable": false
+    }
+  },
+  "tokens": {
+    "input_fresh": 114,
+    "cache_read": 3955760,
+    "cache_write": 210764,
+    "output": 270621,
+    "reasoning": 61849
+  },
+  "cost": {
+    "basis": "metered per call by litellm in the agent container, totalled by harbor as agent_result.cost_usd; still a list-price computation, not a figure the provider returned",
+    "source": "result.json agent_result.cost_usd",
+    "usd": 7.2578
+  }
+}

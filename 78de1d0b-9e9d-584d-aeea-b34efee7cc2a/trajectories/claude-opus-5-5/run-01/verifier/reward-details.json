@@ -1,0 +1,670 @@
+{
+  "reward": {
+    "kind": "group",
+    "score": 0.2151,
+    "aggregation": "weighted-mean",
+    "components": [
+      {
+        "name": "judge",
+        "weight": 4.0,
+        "detail": {
+          "score": 0.0797,
+          "criteria": [
+            {
+              "id": "R1",
+              "name": "R1",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response states that there are five distinct root causes, one behind each of the five operations, rather than one shared cause.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no actual response content. It does not state that there are five distinct root causes behind the five operations, nor does it make any claim about root causes at all."
+            },
+            {
+              "id": "R2",
+              "name": "R2",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response states that the five faults are independent, so that fixing any one of them leaves the other operations wrong.",
+              "reasoning": "The submission contains only a shell command (grep commands run in a workspace) and no prose. It makes no statement about five faults being independent or that fixing one leaves other operations wrong. Criterion R2 is not satisfied."
+            },
+            {
+              "id": "R3",
+              "name": "R3",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies the function `scatter` in `crates/polars-python/src/series/scatter.rs` as storing the new value without converting it to the column's logical dtype.",
+              "reasoning": "The submission only contains a shell command exploring unrelated files (fold/horizontal functions in polars-expr and polars-plan). It does not mention `scatter` in `crates/polars-python/src/series/scatter.rs` or the issue of storing values without converting to the column's logical dtype."
+            },
+            {
+              "id": "R4",
+              "name": "R4",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that `scatter` converts values to the column's logical dtype only for categorical or enum and decimal columns, and otherwise casts the values' physical representation to the column's physical type (`to_physical_repr().cast(... to_physical())`), so a microsecond count is stored and read as nanoseconds, giving 1970-01-20 20:53:57.300.",
+              "reasoning": "The submission contains only a shell command being run (grep over the polars repository) and no actual explanation. It does not mention that `scatter` converts values to the logical dtype only for categorical/enum/decimal columns, nor that it otherwise casts to the physical representation, nor the resulting 1970-01-20 20:53:57.300 timestamp. The criterion is not met."
+            },
+            {
+              "id": "R5",
+              "name": "R5",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains the other two reported values: a `timedelta` becomes a microsecond duration of 1,000,000, stored into the millisecond series as 1000 seconds, and a `date` is a count of days (19844) read as milliseconds, 00:00:19.844.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain the timedelta becoming a microsecond duration of 1,000,000 stored as 1000 seconds, nor the date being a day count (19844) read as milliseconds (00:00:19.844). Criterion R5 is not met."
+            },
+            {
+              "id": "R6",
+              "name": "R6",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response traces the calls: `Series.scatter` wraps the value in a one-value series (microseconds for a Python `datetime`) and calls `PySeries::scatter`, the only caller of `scatter`; `ts[1] = ...` goes through `Series.__setitem__` and `df[0, \"ts\"] = ...` through `DataFrame.__setitem__`, which assigns into the column series.",
+              "reasoning": "The submission does not trace any of the required calls. It contains only a shell command (grepping for `fold` and `FoldHorizontal` in polars-expr and polars-plan crates), which is unrelated to `Series.scatter`, `PySeries::scatter`, `Series.__setitem__`, or `DataFrame.__setitem__`. None of the elements of criterion R6 are addressed."
+            },
+            {
+              "id": "R7",
+              "name": "R7",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that `scatter_impl` writes the physical values and `from_physical_unchecked` relabels them with the column's dtype without converting them.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain that `scatter_impl` writes physical values or that `from_physical_unchecked` relabels them with the column's dtype without conversion. Criterion R7 is not met."
+            },
+            {
+              "id": "R8",
+              "name": "R8",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the variants behave: a microsecond column has the value's own unit, a `pl.Series` of the column's dtype and a `date` into a `Date` series share the physical unit, integer series have no logical layer, and `when/then/otherwise` casts the literal with a real temporal cast instead of calling `scatter`.",
+              "reasoning": "The submission contains only a shell command being run (grep for fold-related code in the polars repo). It provides no explanation of why the variants behave as they do: nothing about microsecond columns carrying their own unit, pl.Series/date sharing physical units with a Date series, integer series lacking a logical layer, or when/then/otherwise casting the literal with a real temporal cast instead of calling scatter. None of the required explanatory content from R8 is present."
+            },
+            {
+              "id": "R9",
+              "name": "R9",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for operation A, casting the new values to the column's logical dtype before taking their physical representation whenever the column is temporal and the value's temporal dtype differs.",
+              "reasoning": "The submission contains only a shell command (grep searches) and no actual proposal or analysis. It does not propose casting new values to the column's logical dtype before taking the physical representation for temporal columns, or anything else about operation A."
+            },
+            {
+              "id": "R10",
+              "name": "R10",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, the `scatter` function in `scatter.rs`.",
+              "reasoning": "The process log shows the agent ran `cat crates/polars-python/src/series/scatter.rs` in the checkout, and the output includes both the `PySeries::scatter` pymethod and the free `fn scatter(s: Series, idx: &Series, values: &Series)` function definition and its body (truncated in the log display, but the full file was read). This satisfies reading the `scatter` function in `scatter.rs`."
+            },
+            {
+              "id": "R11",
+              "name": "R11",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies `sum_horizontal` in `crates/polars-ops/src/series/ops/horizontal.rs` as adding the `Int8` columns in their common supertype `Int8`, so the sums wrap to -128 and -56.",
+              "reasoning": "The submission is merely a shell command exploring fold-related code in polars-expr and polars-plan. It does not identify `sum_horizontal` in `crates/polars-ops/src/series/ops/horizontal.rs`, does not mention Int8 supertype arithmetic, and does not explain the wraparound to -128 and -56. The criterion is not met."
+            },
+            {
+              "id": "R12",
+              "name": "R12",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response contrasts this with the vertical sum, whose `sum_output_dtype` (in `polars-core`) widens `Int8`, `UInt8`, `Int16` and `UInt16` to `Int64`, and states that the horizontal sum never applies it and widens only `Boolean`.",
+              "reasoning": "The submission contains only a shell command (grep invocation) and no actual analysis or explanation. It does not contrast horizontal sum with vertical sum, does not mention `sum_output_dtype` in `polars-core`, does not discuss widening of `Int8`, `UInt8`, `Int16`, `UInt16` to `Int64`, and does not state that the horizontal sum only widens `Boolean`. None of the elements of criterion R12 are present."
+            },
+            {
+              "id": "R13",
+              "name": "R13",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that the planned schema makes the same choice: the `SumHorizontal` arm in `function_expr/schema.rs` takes the supertype and widens only `Boolean`, which is why the collected schema says `Int8`.",
+              "reasoning": "The submission contains only a shell command being run (grep for fold/FoldHorizontal) and no explanatory content. It does not explain that the planned schema's `SumHorizontal` arm in `function_expr/schema.rs` takes the supertype and widens only `Boolean`, nor why the collected schema says `Int8`. The criterion R13 is not satisfied."
+            },
+            {
+              "id": "R14",
+              "name": "R14",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response lists the callers of `sum_horizontal`: the expression dispatch in `polars-expr` (`dispatch/misc.rs`), `mean_horizontal`, and the `DataFrame` method of the same name, and notes that `pl.sum_horizontal` builds the expression through the Python bindings and that `DataFrame.sum_horizontal()` and `mean_horizontal()` select the same expressions.",
+              "reasoning": "The submission contains only a shell command being run (grep for fold/FoldHorizontal) and no actual response content. It does not list the callers of `sum_horizontal` (dispatch/misc.rs in polars-expr, mean_horizontal, the DataFrame method), nor does it note that `pl.sum_horizontal` builds the expression via Python bindings or that `DataFrame.sum_horizontal()` and `mean_horizontal()` select the same expressions. None of the required elements of R14 are present."
+            },
+            {
+              "id": "R15",
+              "name": "R15",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that `mean_horizontal` divides the wrapped sum by the count of non-null values, giving -64.0 and -28.0, and why the `UInt8`, `Int16` and three-column totals come out as 44, -5536 and 44.",
+              "reasoning": "The submission contains only a shell command (grep over polars source files) and no explanatory content. It does not explain that mean_horizontal divides the wrapped sum by the count of non-null values, does not mention -64.0 or -28.0, and does not explain why the UInt8, Int16, and three-column totals come out as 44, -5536, and 44. None of the R15 criteria are satisfied."
+            },
+            {
+              "id": "R16",
+              "name": "R16",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the variants behave: `Int64` columns do not overflow, an `Int8` column with an `Int64` column is added in `Int64`, `Boolean` is widened, `list.sum()` widens through `sum_output_dtype`, and the fold starts from an `Int32` literal.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no actual explanation. It does not explain why Int64 columns do not overflow, why Int8 + Int64 is computed in Int64, why Boolean is widened, how list.sum() widens via sum_output_dtype, or that the fold starts from an Int32 literal. None of the required explanatory content is present."
+            },
+            {
+              "id": "R17",
+              "name": "R17",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for operation B, computing the output dtype with `sum_output_dtype` from the supertype, casting the columns to it before adding, and applying the same rule in the `SumHorizontal` schema arm.",
+              "reasoning": "The submission contains only a shell command (grep searching for fold/FoldHorizontal) and no actual analysis or proposal. It does not propose computing the output dtype with `sum_output_dtype` from the supertype for operation B, casting columns before adding, or applying the same rule in the `SumHorizontal` schema arm."
+            },
+            {
+              "id": "R18",
+              "name": "R18",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, `sum_horizontal` in `horizontal.rs`.",
+              "reasoning": "The agent first located `pub fn sum_horizontal(` at line 179 of `crates/polars-ops/src/series/ops/horizontal.rs` via grep, and then ran `sed -n 1,340p crates/polars-ops/src/series/ops/horizontal.rs`, which reads lines 1\u2013340 of that file in the checkout\u2014covering both the `SumMeanHorizontal` trait method (lines 37/44) and the free function `sum_horizontal` at line 179. The output shown is truncated in the log but the command clearly read the function body."
+            },
+            {
+              "id": "R19",
+              "name": "R19",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies `Series.__rfloordiv__` in `py-polars/src/polars/series/series.py` as computing true division: it returns `_arithmetic(other, \"div\", \"div_<>_rhs\")`, the division with the number on the left, without flooring.",
+              "reasoning": "The submission contains only a shell command exploring fold/horizontal functions in polars-expr and polars-plan crates. It does not identify `Series.__rfloordiv__` in `py-polars/src/polars/series/series.py`, nor does it mention that it computes true division via `_arithmetic(other, \"div\", \"div_<>_rhs\")` without flooring."
+            },
+            {
+              "id": "R20",
+              "name": "R20",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that Python calls `__rfloordiv__` for `-7.5 // s` because the float cannot floor-divide by a `Series`, and how `_arithmetic` reaches the native division, including that a float number with an integer series becomes a one-value `Float64` series divided with `div`.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain that Python calls `__rfloordiv__` for `-7.5 // s`, nor how `_arithmetic` reaches native division, nor that a float with an integer series becomes a one-value Float64 series divided with `div`. The criterion is not met."
+            },
+            {
+              "id": "R21",
+              "name": "R21",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that `__rtruediv__` casts the series to `Float64` and calls `__rfloordiv__`, so true division with the number on the left works only because `__rfloordiv__` does not floor, and that a repair has to change both.",
+              "reasoning": "The submission contains only a shell command about Rust fold/horizontal functions and no explanation whatsoever about `__rtruediv__` casting to Float64, calling `__rfloordiv__`, or the need to repair both methods. The criterion is not met."
+            },
+            {
+              "id": "R22",
+              "name": "R22",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the variants behave: division of two integers rounds toward negative infinity, `s // -7.5` and `Series // Series` go through `__floordiv__`, which evaluates the floor-division expression, `pl.lit(-7.5) // pl.col(\"s\")` is that expression, and `/` is true division.",
+              "reasoning": "The submission contains only a shell command invocation (grep over Polars source files) and no explanation whatsoever. It does not explain that integer floor division rounds toward negative infinity, that `s // -7.5` and `Series // Series` go through `__floordiv__`, that `pl.lit(-7.5) // pl.col(\"s\")` is the floor-division expression, or that `/` is true division. None of the required content in R22 is present."
+            },
+            {
+              "id": "R23",
+              "name": "R23",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for operation C, making `__rfloordiv__` floor-divide (for example through the floor-division expression with the number on the left) and making `__rtruediv__` call the division directly.",
+              "reasoning": "The submission contains only a shell command being run (grep on polars source files) and no actual response content. It does not propose anything about operation C, `__rfloordiv__`, floor division, or `__rtruediv__` calling division directly."
+            },
+            {
+              "id": "R24",
+              "name": "R24",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, `__rfloordiv__` in `series.py`.",
+              "reasoning": "The agent ran a grep in the checkout explicitly targeting `def __rfloordiv__` (along with `__floordiv__`, `__rtruediv__`, `_arithmetic`, `__rsub__`) in `py-polars/src/polars/series/series.py` with `-A40` context and `head -220`. Although the transcript shows only the beginning of that output (the log truncates command outputs throughout), the command's parameters (five ~35-line blocks before `__rfloordiv__` plus the overlapping `-A40` context from the adjacent `__rtruediv__` match) mean the `__rfloordiv__` definition would have been included in the 220 lines the agent received. The agent therefore read `__rfloordiv__` in `series.py` in the checkout."
+            },
+            {
+              "id": "R25",
+              "name": "R25",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies the `AExpr::Cast` arm of `TypeCoercionRule` (`optimize_expr`) in `crates/polars-plan/src/plans/conversion/type_coercion/mod.rs` as turning the strict cast into a non-strict one.",
+              "reasoning": "The submission is merely a shell command exploring fold/FoldHorizontal in polars-expr dispatch and horizontal.rs. It does not identify the `AExpr::Cast` arm of `TypeCoercionRule`/`optimize_expr` in `crates/polars-plan/src/plans/conversion/type_coercion/mod.rs`, nor does it mention anything about a strict cast being turned into a non-strict cast."
+            },
+            {
+              "id": "R26",
+              "name": "R26",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains the mechanism: for a strict cast the arm builds a `CastColumnsPolicy` with `missing_struct_fields: MissingColumnsPolicy::Insert` and `extra_struct_fields: ExtraColumnsPolicy::Ignore`, `should_cast_column` returns `Ok(true)` for any struct field mismatch, and on `Ok(true)` the cast is replaced with `CastOptions::NonStrict` (or `Overflowing` for two primitive numeric dtypes).",
+              "reasoning": "The submission contains only a shell command (grep invocation) and no explanation of any mechanism. It does not mention CastColumnsPolicy, MissingColumnsPolicy::Insert, ExtraColumnsPolicy::Ignore, should_cast_column, or the replacement of strict casts with NonStrict/Overflowing CastOptions. Criterion R26 is not satisfied."
+            },
+            {
+              "id": "R27",
+              "name": "R27",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains how `CastColumnsPolicy::should_cast_column` in `crates/polars-plan/src/dsl/file_scan/mod.rs` treats struct fields: a target field the input lacks is accepted under `Insert` and an input field the target lacks under `Ignore`, and notes that this is the policy scans use to reconcile file schemas.",
+              "reasoning": "The submission contains only a shell command invocation (grep for fold/FoldHorizontal) and no explanation whatsoever. It does not discuss `CastColumnsPolicy::should_cast_column`, struct field handling under `Insert` or `Ignore`, or how scans use this policy to reconcile file schemas."
+            },
+            {
+              "id": "R28",
+              "name": "R28",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response traces the path: converting the lazy query runs the conversion optimizer (`stack_opt.rs`), which applies `TypeCoercionRule` with `has_inputs` true for a select over a frame; `with_columns`, `LazyFrame.cast` and `DataFrame.cast` build the same cast.",
+              "reasoning": "The submission contains only a grep command for fold/FoldHorizontal in polars-expr dispatch and horizontal functions. It does not trace the conversion optimizer path (stack_opt.rs), does not mention TypeCoercionRule or has_inputs, and does not discuss with_columns, LazyFrame.cast, or DataFrame.cast building the same cast. None of the required R28 elements are present."
+            },
+            {
+              "id": "R29",
+              "name": "R29",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains that the executed non-strict struct cast matches fields by name, filling `x` and `y` with nulls and dropping `b` for the target `{\"a\": Int64}`.",
+              "reasoning": "The submission contains only a shell command being run (grep for fold-related code) and no explanation at all. It does not explain that a non-strict struct cast matches fields by name, fills `x` and `y` with nulls, and drops `b` for the target `{\"a\": Int64}`."
+            },
+            {
+              "id": "R30",
+              "name": "R30",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the variants behave: the eager `Series.cast` does not go through plan conversion, so its strict struct cast raises; the same field names are a legitimate cast; `strict=False` never enters the arm; and the strict cast of 300 to `Int8` is a narrowing integer cast the policy refuses with an error, so the strict cast stays and raises.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain why eager Series.cast bypasses plan conversion, why same-field-name casts are legitimate, why strict=False never enters the arm, or why a strict narrowing cast of 300 to Int8 is refused and raises. None of the R30 criteria are addressed."
+            },
+            {
+              "id": "R31",
+              "name": "R31",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for operation D, building the policy with `ExtraColumnsPolicy::Raise` (or otherwise refusing field mismatches for strict casts), so the strict cast is kept and raises.",
+              "reasoning": "The submission contains only a shell command (grep searches in the polars repo) and no actual response content. It does not propose anything about operation D, ExtraColumnsPolicy::Raise, or refusing field mismatches for strict casts."
+            },
+            {
+              "id": "R32",
+              "name": "R32",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, the `AExpr::Cast` arm of the type-coercion rule or `should_cast_column`.",
+              "reasoning": "The process log shows the agent reading the `AExpr::Cast` arm of `TypeCoercionRule::optimize_expr` in the checkout (`sed -n 100,130p` and `sed -n 130,240p crates/polars-plan/src/plans/conversion/type_coercion/mod.rs`, showing `ref ae @ AExpr::Cast { .. } =>`, the `CastColumnsPolicy` construction, and the call to `.should_cast_column(\"\", cast_to, &cast_from)`). It also located and read `should_cast_column` itself (`grep -rn \"fn should_cast_column\"` then `sed -n 930,1200p crates/polars-plan/src/dsl/file_scan/mod.rs` and `sed -n 1200,1330p`), including the function signature and its mismatch_err logic. Both targets of R32 were read."
+            },
+            {
+              "id": "R33",
+              "name": "R33",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes operation A to the temporal cast kernels or to `scatter_impl` rather than to `scatter` skipping the logical cast.",
+              "reasoning": "The submission contains only a shell command being run (grep over polars source files for 'fold' and 'FoldHorizontal') and no actual analysis or attribution of operation A. It does not attribute operation A to the temporal cast kernels, to `scatter_impl`, or to anything at all, so the criterion R33 is not satisfied.",
+              "negate": true
+            },
+            {
+              "id": "R34",
+              "name": "R34",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes two or more of the five operations to one shared root cause.",
+              "reasoning": "The submission contains only a shell command (grep searches over polars source files) and no actual analysis or response content. It does not identify any operations, root causes, or attribute two or more of five operations to a shared root cause.",
+              "negate": true
+            },
+            {
+              "id": "R35",
+              "name": "R35",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes operation B to a wrong integer addition kernel rather than to the missing widening before the addition.",
+              "reasoning": "The submission is merely a command invocation (grep searches over the polars codebase) with no analysis or attribution of operation B to any cause. It does not attribute the behavior to a wrong integer addition kernel, nor to anything else, so the criterion R35 is not met.",
+              "negate": true
+            },
+            {
+              "id": "R36",
+              "name": "R36",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes operation C to the native division or floor-division kernels rather than to which operation `__rfloordiv__` calls.",
+              "reasoning": "The submission is merely a shell command string exploring fold/horizontal code in the polars repository; it contains no analysis or attribution of 'operation C' to native division/floor-division kernels or to `__rfloordiv__`. The criterion is not satisfied.",
+              "negate": true
+            },
+            {
+              "id": "R37",
+              "name": "R37",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes operation D to the struct cast implementation in `polars-core` rather than to the plan conversion rewriting the strict cast.",
+              "reasoning": "The submission contains only a shell command being run (a grep for fold-related code) and no actual answer content. It does not attribute operation D to anything \u2014 neither the struct cast implementation in `polars-core` nor the plan conversion rewriting the strict cast. The criterion is therefore not met.",
+              "negate": true
+            },
+            {
+              "id": "R38",
+              "name": "R38",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response identifies `AsofJoin::_join_asof` in `crates/polars-ops/src/frame/join/asof/mod.rs` as converting both join keys with `to_physical_repr()` before the asof search, so a `Categorical` key is searched by its category codes rather than by its strings.",
+              "reasoning": "The submission contains only a shell command about fold/FoldHorizontal in polars-expr and polars-plan; it does not mention `AsofJoin::_join_asof`, `to_physical_repr()`, or Categorical keys being searched by codes in `crates/polars-ops/src/frame/join/asof/mod.rs`."
+            },
+            {
+              "id": "R39",
+              "name": "R39",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 5.0,
+              "description": "The response explains that category codes follow the order in which the categories were first registered in the session (with `grades` alive, e=0 up to a=4), so the A-Z sorted keys are descending as codes, and that the asof kernels assume ascending keys: the backward scan keeps one forward-only position in the right keys and settles on the last band, \"d\", for every loan, and the forward scan finds no band for any loan.",
+              "reasoning": "The submission contains only a shell command (grep over polars source) and no explanation whatsoever. It does not explain categorical code ordering by session registration, the descending-code consequence of A-Z sorted keys, or how the asof backward/forward kernels assume ascending keys and therefore settle on band \"d\" or find no band. None of the required elements of R39 are present."
+            },
+            {
+              "id": "R40",
+              "name": "R40",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the sortedness check passes: `_check_asof_columns` accepts the keys because their physical dtype is primitive, and its `ensure_sorted_arg` check runs on the categorical series, whose `is_sorted` compares the decoded strings, so it confirms A-Z order while the search uses the codes.",
+              "reasoning": "The submission contains only a shell command (grep for fold-related code) and no explanation at all. It does not discuss `_check_asof_columns`, `ensure_sorted_arg`, `is_sorted`, categorical decoding, or why the sortedness check passes while the search uses codes. Criterion R40 is not met."
+            },
+            {
+              "id": "R41",
+              "name": "R41",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response names the other places that repeat the conversion: `AsofJoinBy::_join_asof_by` in `asof/groups.rs`, used for `by=` joins, and `compute_asof_join` in `crates/polars-stream/src/nodes/joins/asof_join.rs`, used by the streaming engine.",
+              "reasoning": "The submission is just a shell command about fold/horizontal functions and does not mention `AsofJoinBy::_join_asof_by`, `asof/groups.rs`, `compute_asof_join`, or the polars-stream asof_join node at all."
+            },
+            {
+              "id": "R42",
+              "name": "R42",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response traces the path: `DataFrame.join_asof` runs the query in the in-memory engine, whose join executor calls `_join_impl` in `polars-ops`, and its `JoinType::AsOf` arm calls `_join_asof`, or `_join_asof_by` when `by` columns are given; the streaming engine's asof node calls `compute_asof_join` instead, which is why its wrong answer differs.",
+              "reasoning": "The submission contains only a shell command about `fold` dispatch and `FoldHorizontal`; it does not trace `DataFrame.join_asof` through the in-memory engine, `_join_impl`, `JoinType::AsOf`, `_join_asof`/`_join_asof_by`, or the streaming engine's `compute_asof_join`. None of the required path elements are present."
+            },
+            {
+              "id": "R43",
+              "name": "R43",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response explains why the variants behave: `String` keys are compared as strings, an `Enum`'s codes follow its declared order, which is also its sort order, a session where `grades` was never built registers the categories A-Z so the codes happen to ascend, and frames sorted by `to_physical()` fail the string-based sortedness check.",
+              "reasoning": "The submission contains only a shell command being run (grep for fold-related functions in the polars repo) and no explanatory text. It does not explain anything about String key comparison, Enum code ordering, category registration order in a session where grades was never built, or why to_physical()-sorted frames fail a string-based sortedness check. None of the required R43 elements are present."
+            },
+            {
+              "id": "R44",
+              "name": "R44",
+              "value": 0.0,
+              "raw": "no",
+              "weight": 3.0,
+              "description": "The response proposes, for operation E, comparing categorical keys by their strings (for example casting them to `String`, or to their lexical ranks) instead of taking their physical codes before the search, in all three places.",
+              "reasoning": "The submission contains only a shell command (grep for fold-related code) and no analysis or proposal at all. It does not discuss operation E, categorical keys, casting to String or lexical ranks, or anything about comparing keys before a search in any of three places. The criterion is not met."
+            },
+            {
+              "id": "R45",
+              "name": "R45",
+              "value": 1.0,
+              "raw": "yes",
+              "weight": 1.0,
+              "description": "The agent reads, in the checkout, `_join_asof` in `asof/mod.rs`.",
+              "reasoning": "The agent ran `sed -n 205,400p crates/polars-ops/src/frame/join/asof/mod.rs` in the checkout, which spans line 254 where `fn _join_asof(` is defined (confirmed by the earlier grep listing `254:    fn _join_asof(` and surrounding lines 265-280 referencing `_check_asof_columns` and `_join_asof_dispatch`). Although the displayed output in the log is truncated, the command's range covers the `_join_asof` function body, so the agent did read it."
+            },
+            {
+              "id": "R46",
+              "name": "R46",
+              "value": 1.0,
+              "raw": "no",
+              "weight": 1.0,
+              "description": "The response attributes operation E to the asof search kernels or scan states, or to the categorical sortedness check, rather than to the keys being converted to their codes before the search.",
+              "reasoning": "The submission is merely a shell command string (grep for fold/FoldHorizontal) and contains no attribution of operation E to anything \u2014 neither to asof search kernels, scan states, categorical sortedness check, nor to key-to-code conversion. Since it does not attribute operation E to the asof search kernels/scan states or the categorical sortedness check, the criterion is not met.",
+              "negate": true
+            }
+          ],
+          "kind": "llm",
+          "judge": {
+            "model": "anthropic/claude-fable-5-1",
+            "reasoning_effort": "medium",
+            "timeout": 900,
+            "files": [
+              "/app/answer.md",
+              "/app/process.md"
+            ],
+            "atif_trajectory": null,
+            "reference": null,
+            "mode": "individual",
+            "samples": 1,
+            "guard": "flag"
+          },
+          "judge_output": "--- R1 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no actual response content. It does not state that there are five distinct root causes behind the five operations, nor does it make any claim about root causes at all.\"}\n\n--- R2 ---\n{\"score\": \"no\", \"reasoning\": \"The submission contains only a shell command (grep commands run in a workspace) and no prose. It makes no statement about five faults being independent or that fixing one leaves other operations wrong. Criterion R2 is not satisfied.\"}\n\n--- R3 ---\n{\"score\":\"no\",\"reasoning\":\"The submission only contains a shell command exploring unrelated files (fold/horizontal functions in polars-expr and polars-plan). It does not mention `scatter` in `crates/polars-python/src/series/scatter.rs` or the issue of storing values without converting to the column's logical dtype.\"}\n\n--- R4 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over the polars repository) and no actual explanation. It does not mention that `scatter` converts values to the logical dtype only for categorical/enum/decimal columns, nor that it otherwise casts to the physical representation, nor the resulting 1970-01-20 20:53:57.300 timestamp. The criterion is not met.\"}\n\n--- R5 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain the timedelta becoming a microsecond duration of 1,000,000 stored as 1000 seconds, nor the date being a day count (19844) read as milliseconds (00:00:19.844). Criterion R5 is not met.\"}\n\n--- R6 ---\n{\"score\":\"no\",\"reasoning\":\"The submission does not trace any of the required calls. It contains only a shell command (grepping for `fold` and `FoldHorizontal` in polars-expr and polars-plan crates), which is unrelated to `Series.scatter`, `PySeries::scatter`, `Series.__setitem__`, or `DataFrame.__setitem__`. None of the elements of criterion R6 are addressed.\"}\n\n--- R7 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain that `scatter_impl` writes physical values or that `from_physical_unchecked` relabels them with the column's dtype without conversion. Criterion R7 is not met.\"}\n\n--- R8 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep for fold-related code in the polars repo). It provides no explanation of why the variants behave as they do: nothing about microsecond columns carrying their own unit, pl.Series/date sharing physical units with a Date series, integer series lacking a logical layer, or when/then/otherwise casting the literal with a real temporal cast instead of calling scatter. None of the required explanatory content from R8 is present.\"}\n\n--- R9 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep searches) and no actual proposal or analysis. It does not propose casting new values to the column's logical dtype before taking the physical representation for temporal columns, or anything else about operation A.\"}\n\n--- R10 ---\n{\"score\":\"yes\",\"reasoning\":\"The process log shows the agent ran `cat crates/polars-python/src/series/scatter.rs` in the checkout, and the output includes both the `PySeries::scatter` pymethod and the free `fn scatter(s: Series, idx: &Series, values: &Series)` function definition and its body (truncated in the log display, but the full file was read). This satisfies reading the `scatter` function in `scatter.rs`.\"}\n\n--- R11 ---\n{\"score\":\"no\",\"reasoning\":\"The submission is merely a shell command exploring fold-related code in polars-expr and polars-plan. It does not identify `sum_horizontal` in `crates/polars-ops/src/series/ops/horizontal.rs`, does not mention Int8 supertype arithmetic, and does not explain the wraparound to -128 and -56. The criterion is not met.\"}\n\n--- R12 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep invocation) and no actual analysis or explanation. It does not contrast horizontal sum with vertical sum, does not mention `sum_output_dtype` in `polars-core`, does not discuss widening of `Int8`, `UInt8`, `Int16`, `UInt16` to `Int64`, and does not state that the horizontal sum only widens `Boolean`. None of the elements of criterion R12 are present.\"}\n\n--- R13 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep for fold/FoldHorizontal) and no explanatory content. It does not explain that the planned schema's `SumHorizontal` arm in `function_expr/schema.rs` takes the supertype and widens only `Boolean`, nor why the collected schema says `Int8`. The criterion R13 is not satisfied.\"}\n\n--- R14 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep for fold/FoldHorizontal) and no actual response content. It does not list the callers of `sum_horizontal` (dispatch/misc.rs in polars-expr, mean_horizontal, the DataFrame method), nor does it note that `pl.sum_horizontal` builds the expression via Python bindings or that `DataFrame.sum_horizontal()` and `mean_horizontal()` select the same expressions. None of the required elements of R14 are present.\"}\n\n--- R15 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep over polars source files) and no explanatory content. It does not explain that mean_horizontal divides the wrapped sum by the count of non-null values, does not mention -64.0 or -28.0, and does not explain why the UInt8, Int16, and three-column totals come out as 44, -5536, and 44. None of the R15 criteria are satisfied.\"}\n\n--- R16 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no actual explanation. It does not explain why Int64 columns do not overflow, why Int8 + Int64 is computed in Int64, why Boolean is widened, how list.sum() widens via sum_output_dtype, or that the fold starts from an Int32 literal. None of the required explanatory content is present.\"}\n\n--- R17 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep searching for fold/FoldHorizontal) and no actual analysis or proposal. It does not propose computing the output dtype with `sum_output_dtype` from the supertype for operation B, casting columns before adding, or applying the same rule in the `SumHorizontal` schema arm.\"}\n\n--- R18 ---\n{\"score\":\"yes\",\"reasoning\":\"The agent first located `pub fn sum_horizontal(` at line 179 of `crates/polars-ops/src/series/ops/horizontal.rs` via grep, and then ran `sed -n 1,340p crates/polars-ops/src/series/ops/horizontal.rs`, which reads lines 1\u2013340 of that file in the checkout\u2014covering both the `SumMeanHorizontal` trait method (lines 37/44) and the free function `sum_horizontal` at line 179. The output shown is truncated in the log but the command clearly read the function body.\"}\n\n--- R19 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command exploring fold/horizontal functions in polars-expr and polars-plan crates. It does not identify `Series.__rfloordiv__` in `py-polars/src/polars/series/series.py`, nor does it mention that it computes true division via `_arithmetic(other, \\\"div\\\", \\\"div_<>_rhs\\\")` without flooring.\"}\n\n--- R20 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain that Python calls `__rfloordiv__` for `-7.5 // s`, nor how `_arithmetic` reaches native division, nor that a float with an integer series becomes a one-value Float64 series divided with `div`. The criterion is not met.\"}\n\n--- R21 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command about Rust fold/horizontal functions and no explanation whatsoever about `__rtruediv__` casting to Float64, calling `__rfloordiv__`, or the need to repair both methods. The criterion is not met.\"}\n\n--- R22 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command invocation (grep over Polars source files) and no explanation whatsoever. It does not explain that integer floor division rounds toward negative infinity, that `s // -7.5` and `Series // Series` go through `__floordiv__`, that `pl.lit(-7.5) // pl.col(\\\"s\\\")` is the floor-division expression, or that `/` is true division. None of the required content in R22 is present.\"}\n\n--- R23 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep on polars source files) and no actual response content. It does not propose anything about operation C, `__rfloordiv__`, floor division, or `__rtruediv__` calling division directly.\"}\n\n--- R24 ---\n{\"score\":\"yes\",\"reasoning\":\"The agent ran a grep in the checkout explicitly targeting `def __rfloordiv__` (along with `__floordiv__`, `__rtruediv__`, `_arithmetic`, `__rsub__`) in `py-polars/src/polars/series/series.py` with `-A40` context and `head -220`. Although the transcript shows only the beginning of that output (the log truncates command outputs throughout), the command's parameters (five ~35-line blocks before `__rfloordiv__` plus the overlapping `-A40` context from the adjacent `__rtruediv__` match) mean the `__rfloordiv__` definition would have been included in the 220 lines the agent received. The agent therefore read `__rfloordiv__` in `series.py` in the checkout.\"}\n\n--- R25 ---\n{\"score\": \"no\", \"reasoning\": \"The submission is merely a shell command exploring fold/FoldHorizontal in polars-expr dispatch and horizontal.rs. It does not identify the `AExpr::Cast` arm of `TypeCoercionRule`/`optimize_expr` in `crates/polars-plan/src/plans/conversion/type_coercion/mod.rs`, nor does it mention anything about a strict cast being turned into a non-strict cast.\"}\n\n--- R26 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep invocation) and no explanation of any mechanism. It does not mention CastColumnsPolicy, MissingColumnsPolicy::Insert, ExtraColumnsPolicy::Ignore, should_cast_column, or the replacement of strict casts with NonStrict/Overflowing CastOptions. Criterion R26 is not satisfied.\"}\n\n--- R27 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command invocation (grep for fold/FoldHorizontal) and no explanation whatsoever. It does not discuss `CastColumnsPolicy::should_cast_column`, struct field handling under `Insert` or `Ignore`, or how scans use this policy to reconcile file schemas.\"}\n\n--- R28 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a grep command for fold/FoldHorizontal in polars-expr dispatch and horizontal functions. It does not trace the conversion optimizer path (stack_opt.rs), does not mention TypeCoercionRule or has_inputs, and does not discuss with_columns, LazyFrame.cast, or DataFrame.cast building the same cast. None of the required R28 elements are present.\"}\n\n--- R29 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep for fold-related code) and no explanation at all. It does not explain that a non-strict struct cast matches fields by name, fills `x` and `y` with nulls, and drops `b` for the target `{\\\"a\\\": Int64}`.\"}\n\n--- R30 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files) and no explanatory content. It does not explain why eager Series.cast bypasses plan conversion, why same-field-name casts are legitimate, why strict=False never enters the arm, or why a strict narrowing cast of 300 to Int8 is refused and raises. None of the R30 criteria are addressed.\"}\n\n--- R31 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep searches in the polars repo) and no actual response content. It does not propose anything about operation D, ExtraColumnsPolicy::Raise, or refusing field mismatches for strict casts.\"}\n\n--- R32 ---\n{\"score\":\"yes\",\"reasoning\":\"The process log shows the agent reading the `AExpr::Cast` arm of `TypeCoercionRule::optimize_expr` in the checkout (`sed -n 100,130p` and `sed -n 130,240p crates/polars-plan/src/plans/conversion/type_coercion/mod.rs`, showing `ref ae @ AExpr::Cast { .. } =>`, the `CastColumnsPolicy` construction, and the call to `.should_cast_column(\\\"\\\", cast_to, &cast_from)`). It also located and read `should_cast_column` itself (`grep -rn \\\"fn should_cast_column\\\"` then `sed -n 930,1200p crates/polars-plan/src/dsl/file_scan/mod.rs` and `sed -n 1200,1330p`), including the function signature and its mismatch_err logic. Both targets of R32 were read.\"}\n\n--- R33 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep over polars source files for 'fold' and 'FoldHorizontal') and no actual analysis or attribution of operation A. It does not attribute operation A to the temporal cast kernels, to `scatter_impl`, or to anything at all, so the criterion R33 is not satisfied.\"}\n\n--- R34 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep searches over polars source files) and no actual analysis or response content. It does not identify any operations, root causes, or attribute two or more of five operations to a shared root cause.\"}\n\n--- R35 ---\n{\"score\":\"no\",\"reasoning\":\"The submission is merely a command invocation (grep searches over the polars codebase) with no analysis or attribution of operation B to any cause. It does not attribute the behavior to a wrong integer addition kernel, nor to anything else, so the criterion R35 is not met.\"}\n\n--- R36 ---\n{\"score\":\"no\",\"reasoning\":\"The submission is merely a shell command string exploring fold/horizontal code in the polars repository; it contains no analysis or attribution of 'operation C' to native division/floor-division kernels or to `__rfloordiv__`. The criterion is not satisfied.\"}\n\n--- R37 ---\n{\"score\": \"no\", \"reasoning\": \"The submission contains only a shell command being run (a grep for fold-related code) and no actual answer content. It does not attribute operation D to anything \u2014 neither the struct cast implementation in `polars-core` nor the plan conversion rewriting the strict cast. The criterion is therefore not met.\"}\n\n--- R38 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command about fold/FoldHorizontal in polars-expr and polars-plan; it does not mention `AsofJoin::_join_asof`, `to_physical_repr()`, or Categorical keys being searched by codes in `crates/polars-ops/src/frame/join/asof/mod.rs`.\"}\n\n--- R39 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep over polars source) and no explanation whatsoever. It does not explain categorical code ordering by session registration, the descending-code consequence of A-Z sorted keys, or how the asof backward/forward kernels assume ascending keys and therefore settle on band \\\"d\\\" or find no band. None of the required elements of R39 are present.\"}\n\n--- R40 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep for fold-related code) and no explanation at all. It does not discuss `_check_asof_columns`, `ensure_sorted_arg`, `is_sorted`, categorical decoding, or why the sortedness check passes while the search uses codes. Criterion R40 is not met.\"}\n\n--- R41 ---\n{\"score\":\"no\",\"reasoning\":\"The submission is just a shell command about fold/horizontal functions and does not mention `AsofJoinBy::_join_asof_by`, `asof/groups.rs`, `compute_asof_join`, or the polars-stream asof_join node at all.\"}\n\n--- R42 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command about `fold` dispatch and `FoldHorizontal`; it does not trace `DataFrame.join_asof` through the in-memory engine, `_join_impl`, `JoinType::AsOf`, `_join_asof`/`_join_asof_by`, or the streaming engine's `compute_asof_join`. None of the required path elements are present.\"}\n\n--- R43 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command being run (grep for fold-related functions in the polars repo) and no explanatory text. It does not explain anything about String key comparison, Enum code ordering, category registration order in a session where grades was never built, or why to_physical()-sorted frames fail a string-based sortedness check. None of the required R43 elements are present.\"}\n\n--- R44 ---\n{\"score\":\"no\",\"reasoning\":\"The submission contains only a shell command (grep for fold-related code) and no analysis or proposal at all. It does not discuss operation E, categorical keys, casting to String or lexical ranks, or anything about comparing keys before a search in any of three places. The criterion is not met.\"}\n\n--- R45 ---\n{\"score\":\"yes\",\"reasoning\":\"The agent ran `sed -n 205,400p crates/polars-ops/src/frame/join/asof/mod.rs` in the checkout, which spans line 254 where `fn _join_asof(` is defined (confirmed by the earlier grep listing `254:    fn _join_asof(` and surrounding lines 265-280 referencing `_check_asof_columns` and `_join_asof_dispatch`). Although the displayed output in the log is truncated, the command's range covers the `_join_asof` function body, so the agent did read it.\"}\n\n--- R46 ---\n{\"score\":\"no\",\"reasoning\":\"The submission is merely a shell command string (grep for fold/FoldHorizontal) and contains no attribution of operation E to anything \u2014 neither to asof search kernels, scan states, categorical sortedness check, nor to key-to-code conversion. Since it does not attribute operation E to the asof search kernels/scan states or the categorical sortedness check, the criterion is not met.\"}\n\n--- guard ---\n{\"score\":\"no\",\"reasoning\":\"The submission consists of an answer.md containing only a shell command and a process.md logging a sequence of shell commands and their outputs while exploring the polars codebase. There is no text addressed to the evaluator, no discussion of scoring, grading, or how the work should be judged.\"}",
+          "usage": {
+            "input_tokens": 371944,
+            "cache_creation_input_tokens": 371756,
+            "output_tokens": 8317,
+            "reasoning_output_tokens": 2102,
+            "total_tokens": 380261,
+            "cost_usd": 5.06468,
+            "models": {
+              "anthropic/claude-fable-5-1": {
+                "input_tokens": 371944,
+                "cache_creation_input_tokens": 371756,
+                "output_tokens": 8317,
+                "reasoning_output_tokens": 2102,
+                "total_tokens": 380261,
+                "cost_usd": 5.06468
+              }
+            }
+          },
+          "guard": {
+            "flagged": false,
+            "reasoning": "The submission consists of an answer.md containing only a shell command and a process.md logging a sequence of shell commands and their outputs while exploring the polars codebase. There is no text addressed to the evaluator, no discussion of scoring, grading, or how the work should be judged."
+          }
+        }
+      },
+      {
+        "name": "test_output",
+        "weight": 1.0,
+        "detail": {
+          "score": 0.7568,
+          "criteria": [
+            {
+              "name": "read_scatter_in_series_scatter",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed the body of scatter in crates/polars-python/src/series/scatter.rs",
+              "reasoning": "scatter was displayed"
+            },
+            {
+              "name": "read_scatter_impl_in_series_scatter",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of scatter_impl in crates/polars-python/src/series/scatter.rs",
+              "reasoning": "scatter_impl was displayed"
+            },
+            {
+              "name": "read_scatter_in_series_series",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of scatter in py-polars/src/polars/series/series.py",
+              "reasoning": "scatter was not displayed"
+            },
+            {
+              "name": "read_sum_horizontal_in_ops_horizontal",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed the body of sum_horizontal in crates/polars-ops/src/series/ops/horizontal.rs",
+              "reasoning": "sum_horizontal was displayed"
+            },
+            {
+              "name": "opened_function_expr_schema",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.05405405405405406,
+              "description": "Displayed crates/polars-plan/src/plans/aexpr/function_expr/schema.rs including SumHorizontal",
+              "reasoning": "crates/polars-plan/src/plans/aexpr/function_expr/schema.rs was displayed with SumHorizontal"
+            },
+            {
+              "name": "read_sum_output_dtype_in_aggregate_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.05405405405405406,
+              "description": "Displayed the body of sum_output_dtype in crates/polars-core/src/chunked_array/ops/aggregate/mod.rs",
+              "reasoning": "sum_output_dtype was displayed"
+            },
+            {
+              "name": "read_mean_horizontal_in_ops_horizontal",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of mean_horizontal in crates/polars-ops/src/series/ops/horizontal.rs",
+              "reasoning": "mean_horizontal was displayed"
+            },
+            {
+              "name": "opened_dispatch_misc",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed crates/polars-expr/src/dispatch/misc.rs",
+              "reasoning": "crates/polars-expr/src/dispatch/misc.rs was displayed"
+            },
+            {
+              "name": "read___rfloordiv___in_series_series",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed the body of __rfloordiv__ in py-polars/src/polars/series/series.py",
+              "reasoning": "__rfloordiv__ was not displayed"
+            },
+            {
+              "name": "read___rtruediv___in_series_series",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.05405405405405406,
+              "description": "Displayed the body of __rtruediv__ in py-polars/src/polars/series/series.py",
+              "reasoning": "__rtruediv__ was not displayed"
+            },
+            {
+              "name": "read__arithmetic_in_series_series",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of _arithmetic in py-polars/src/polars/series/series.py",
+              "reasoning": "_arithmetic was not displayed"
+            },
+            {
+              "name": "read___floordiv___in_series_series",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of __floordiv__ in py-polars/src/polars/series/series.py",
+              "reasoning": "__floordiv__ was not displayed"
+            },
+            {
+              "name": "opened_type_coercion_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed crates/polars-plan/src/plans/conversion/type_coercion/mod.rs including ExtraColumnsPolicy::Ignore",
+              "reasoning": "crates/polars-plan/src/plans/conversion/type_coercion/mod.rs was displayed with ExtraColumnsPolicy::Ignore"
+            },
+            {
+              "name": "read_should_cast_column_in_file_scan_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed the body of should_cast_column in crates/polars-plan/src/dsl/file_scan/mod.rs",
+              "reasoning": "should_cast_column was displayed"
+            },
+            {
+              "name": "opened_conversion_stack_opt",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed crates/polars-plan/src/plans/conversion/stack_opt.rs",
+              "reasoning": "crates/polars-plan/src/plans/conversion/stack_opt.rs was displayed"
+            },
+            {
+              "name": "read__join_asof_in_asof_mod",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.08108108108108109,
+              "description": "Displayed the body of _join_asof in crates/polars-ops/src/frame/join/asof/mod.rs",
+              "reasoning": "_join_asof was displayed"
+            },
+            {
+              "name": "read__join_asof_by_in_asof_groups",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of _join_asof_by in crates/polars-ops/src/frame/join/asof/groups.rs",
+              "reasoning": "_join_asof_by was displayed"
+            },
+            {
+              "name": "read_compute_asof_join_in_joins_asof_join",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of compute_asof_join in crates/polars-stream/src/nodes/joins/asof_join.rs",
+              "reasoning": "compute_asof_join was displayed"
+            },
+            {
+              "name": "read_is_sorted_impl_in_ops_various",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Displayed the body of is_sorted_impl in crates/polars-ops/src/series/ops/various.rs",
+              "reasoning": "is_sorted_impl was displayed"
+            },
+            {
+              "name": "searched_sum_output_dtype",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": 0.02702702702702703,
+              "description": "Searched the tree for sum_output_dtype",
+              "reasoning": "sum_output_dtype was not searched"
+            },
+            {
+              "name": "searched_ExtraColumnsPolicy",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Searched the tree for ExtraColumnsPolicy",
+              "reasoning": "ExtraColumnsPolicy was searched"
+            },
+            {
+              "name": "answer_grounded",
+              "value": 1.0,
+              "raw": 1.0,
+              "weight": 0.02702702702702703,
+              "description": "Every cited file and named golden routine was displayed",
+              "reasoning": "every citation was displayed"
+            },
+            {
+              "name": "modified_code_penalty",
+              "value": 0.0,
+              "raw": 0.0,
+              "weight": -0.13513513513513514,
+              "description": "PENALTY: the agent modified source during the read-only investigation",
+              "reasoning": "no source modification"
+            }
+          ],
+          "kind": "programmatic"
+        }
+      }
+    ]
+  }
+}

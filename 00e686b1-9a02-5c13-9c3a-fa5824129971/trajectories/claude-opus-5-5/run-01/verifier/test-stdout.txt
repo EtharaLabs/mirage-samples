@@ -1,0 +1,10 @@
+[info] history: 190 events from events
+[stage] answer: 1109 chars | history: 190 events from events
+reward: 0.3575
+pytest: 0.9706
+rubric: 0.2042
+{
+  "reward": 0.3575,
+  "pytest": 0.9706,
+  "rubric": 0.2042
+}

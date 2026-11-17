@@ -1,0 +1,630 @@
+[judge]
+judge = "anthropic/claude-fable-5-1"
+mode = "individual"
+samples = 1
+timeout = 900
+guard = "flag"
+files = ["/app/answer.md", "/app/process.md"]
+
+[scoring]
+aggregation = "weighted-mean"
+
+[[criterion]]
+id = "R1"
+name = "R1"
+description = "The response states that there are five distinct root causes, one behind each of the five pipelines, rather than a single shared cause."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R2"
+name = "R2"
+description = "The response states that in pipelines A to D the values and their validity are correct and only the sorted marker the result carries is wrong."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R3"
+name = "R3"
+description = "The response explains that `max` and `min` on a column marked sorted read the element at `last_non_null` / `first_non_null`, and that those `ChunkedArray` methods in `crates/polars-core/src/chunked_array/mod.rs` infer where all missing entries are from element 0 alone, so a marked column whose missing entries are not all at one end yields a missing maximum or minimum."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R4"
+name = "R4"
+description = "The response explains that `n_unique` and `unique` in `crates/polars-core/src/chunked_array/ops/unique/mod.rs`, on a column marked sorted, count or keep runs of consecutive equal values (treating missing as a value), which is why each reported distinct count is too high."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R5"
+name = "R5"
+description = "The response explains that the sort fast path returns a column marked sorted in the requested order unchanged, which is why pipeline C's `sort()` returns `[1, 2, 1, 3, 3]`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R6"
+name = "R6"
+description = "The response explains that grouping by a key column marked sorted goes through `create_groups_from_sorted` and `partition_to_groups`, which split the keys into runs and take the missing rows to be at the end indicated by element 0, and uses this to explain at least one pipeline's wrong grouping."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R7"
+name = "R7"
+description = "The response explains pipeline D's two groups labelled 5: the raw value stored under each missing entry is the constant 5, so the run splitting merges rows across the missing entries and labels each group by its first row."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R8"
+name = "R8"
+description = "The response identifies `_update_gather_sorted_flag` as the routine that decides the sorted marker of pipeline A's fetched keys."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R9"
+name = "R9"
+description = "The response gives `crates/polars-core/src/chunked_array/ops/gather.rs` as the repository-relative path of the file that defines `_update_gather_sorted_flag`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R10"
+name = "R10"
+description = "The response states that `_update_gather_sorted_flag` decides the marker only from the two input markers, the indexed column's and the positions', and never looks at the gathered result's validity or where its missing entries land."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R11"
+name = "R11"
+description = "The response explains that pipeline A's result has missing entries at both ends: the missing keys come out at the front because the smallest positions point at them, and the missing positions come out at the back."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R12"
+name = "R12"
+description = "The response lists the callers of `_update_gather_sorted_flag` in `gather.rs` as exactly the five `ChunkTakeUnchecked<IdxCa>` implementations, for `ChunkedArray<T>`, `BinaryChunked`, `StringChunked`, `ArrayChunked` and `ListChunked`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R13"
+name = "R13"
+description = "The response lists the two call sites of `_update_gather_sorted_flag` outside `gather.rs`, both in `crates/polars-ops/src/chunked_array/gather/chunked.rs`, enclosed by `take_chunked_unchecked` and by `take_chunked_unchecked_binview`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R14"
+name = "R14"
+description = "The response explains why signed positions behave: `_convert_series_to_indices` casts positions that are not already of the index type, the cast from `Int64` to `UInt32` does not carry the sorted marker over, and `_update_gather_sorted_flag` then returns `Not`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R15"
+name = "R15"
+description = "The response explains why inputs where only one column has missing entries behave: all missing entries then sit together at one end, which the consumers handle correctly."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R16"
+name = "R16"
+description = "The response traces pipeline A from the Python indexing through `gather_with_series` and the take on an `IdxCa` to the `ChunkTakeUnchecked<IdxCa>` implementation that stores the marker with `set_sorted_flag`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R17"
+name = "R17"
+description = "The response proposes, for pipeline A, keeping the gathered marker only when the result's missing entries are all at one end (or dropping it when both inputs have missing entries)."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R18"
+name = "R18"
+description = "The response identifies `agg_first` (the `Series` aggregation, not the `Column` wrapper) as the routine that wrongly marks pipeline B's result sorted."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R19"
+name = "R19"
+description = "The response gives `crates/polars-core/src/frame/group_by/aggregations/dispatch.rs` as the repository-relative path of the file that defines that `agg_first`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R20"
+name = "R20"
+description = "The response states that `agg_first` copies the input column's sorted marker onto the result whenever the groups are ordered by their first row (`is_sorted_by_first_idx`), without checking where the missing entries produced by empty groups land."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R21"
+name = "R21"
+description = "The response explains that an empty window gets no first row (a `None` index), so it becomes a missing entry in the middle of pipeline B's result, `[2, None, 4, None]`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R22"
+name = "R22"
+description = "The response names `agg_first_non_null` and `agg_last_non_null`, in the same file, as repeating the same unguarded copy of the input's marker."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R23"
+name = "R23"
+description = "The response explains that rolling `min` reaches the same copy: `agg_min`'s sorted fast path in `crates/polars-core/src/frame/group_by/aggregations/mod.rs` calls `agg_first_non_null` for an ascending column, which for a column without missing entries calls `agg_first`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R24"
+name = "R24"
+description = "The response explains why rolling `max` and `last` behave: they end in `agg_last` (for `max` via `agg_last_non_null`), which sets no sorted marker, so the result is unmarked."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R25"
+name = "R25"
+description = "The response notes that the rolling windows are built as slice groups in `crates/polars-time/src/group_by/dynamic.rs`, with a zero-length slice for an empty window."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R26"
+name = "R26"
+description = "The response proposes, for pipeline B, copying the input's marker only when the result has no missing entries or they are all at one end."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R27"
+name = "R27"
+description = "The response identifies `is_sorted_by_first_idx` on `GroupsType` as the wrong decision behind pipeline C."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R28"
+name = "R28"
+description = "The response gives `crates/polars-core/src/frame/group_by/position.rs` as the repository-relative path of the file that defines that `is_sorted_by_first_idx`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R29"
+name = "R29"
+description = "The response states that `GroupsType::is_sorted_by_first_idx` answers true for every slice group set, ignoring whether the slices overlap or are monotonic."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R30"
+name = "R30"
+description = "The response explains that the slice expression in `crates/polars-expr/src/expressions/slice.rs`, for an offset that varies per window, moves each overlapping window by its own offset and rebuilds the groups as not monotonic, so the first rows step back (0, 1, 0, 2, 2 for the reported data)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R31"
+name = "R31"
+description = "The response explains that `agg_first` consults `is_sorted_by_first_idx`, gets true, and copies `v`'s ascending marker onto `[1, 2, 1, 3, 3]`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R32"
+name = "R32"
+description = "The response explains why a constant offset such as `slice(1, 1)` behaves: every window moves by the same amount, the groups stay monotonic and the first rows stay in order, so the marker is true."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R33"
+name = "R33"
+description = "The response explains why `last()` in place of `first()` behaves in pipeline C: `agg_last` sets no sorted marker."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R34"
+name = "R34"
+description = "The response distinguishes the identically named `GroupsIdx::is_sorted_by_first_idx`, which returns a field set when index groups were actually sorted, from the `GroupsType` method that is wrong."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R35"
+name = "R35"
+description = "The response proposes, for pipeline C, answering true for slice groups only when they do not overlap or are monotonic."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R36"
+name = "R36"
+description = "The response identifies `agg_with_scalar_identity` on `Column` as the routine that wrongly marks pipeline D's result sorted."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R37"
+name = "R37"
+description = "The response gives `crates/polars-core/src/frame/column/mod.rs` as the repository-relative path of the file that defines `agg_with_scalar_identity`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R38"
+name = "R38"
+description = "The response explains that for a scalar column with empty groups `agg_with_scalar_identity` materializes the broadcast constant and applies a validity with a missing entry per empty group, keeping the sorted marker of the materialized constant."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R39"
+name = "R39"
+description = "The response explains that the marker comes from materializing the constant with `new_from_index`, which marks the result sorted ascending because all its values are equal."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R40"
+name = "R40"
+description = "The response explains that applying the validity (`with_validity` / `set_validity`) updates the null count but leaves the sorted marker in place."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R41"
+name = "R41"
+description = "The response lists the `Column` aggregations that call `agg_with_scalar_identity` as `agg_min`, `agg_max`, `agg_mean`, `agg_median`, `agg_first`, `agg_first_non_null`, `agg_last`, `agg_last_non_null`, `agg_and` and `agg_or`, naming all ten."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R42"
+name = "R42"
+description = "The response explains that `min`, `mean` and `last` fail the same way as `first` because they go through the same scalar path."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R43"
+name = "R43"
+description = "The response explains why an ordinary column with the same values behaves: it takes the series aggregation path, and its input carries no sorted marker to copy."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R44"
+name = "R44"
+description = "The response proposes, for pipeline D, keeping the marker only if the missing entries are all at one end and clearing it otherwise."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R45"
+name = "R45"
+description = "The agent reads, in the checkout, the per-group aggregation routines that set the result's sorted marker (`agg_first` and its siblings)."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-2", dimension = "process" }
+
+[[criterion]]
+id = "R46"
+name = "R46"
+description = "The agent reads, in the checkout, the group-position code that answers whether groups are ordered by their first row, and the slice expression."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-3", dimension = "process" }
+
+[[criterion]]
+id = "R47"
+name = "R47"
+description = "The agent reads, in the checkout, the scalar-column aggregation path in the column code."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-4", dimension = "process" }
+
+[[criterion]]
+id = "R48"
+name = "R48"
+description = "The response presents `max`/`min`, the distinct counting, the sorting or the grouping as the origin of a fault rather than as routines trusting a wrong marker."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R49"
+name = "R49"
+description = "The response attributes all five pipelines to one single root cause, or claims that one repair in one place fixes all five."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R50"
+name = "R50"
+description = "The response concludes that the recent repair to sorted markers when appending (`update_sorted_flag_before_append`) causes these faults or already fixes them."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R51"
+name = "R51"
+description = "The response attributes a pipeline to wrong values or wrong validity produced by a gather or copy kernel."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R52"
+name = "R52"
+description = "The response identifies the sorted-merge join kernel `join` in `crates/polars-arrow/src/legacy/kernels/sorted_join/inner.rs` as where pipeline E's NaN match is lost."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R53"
+name = "R53"
+description = "The response names the left-join twin, `join` in `crates/polars-arrow/src/legacy/kernels/sorted_join/left.rs`, as the routine that leaves the NaN row unmatched under `how=\"left\"`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R54"
+name = "R54"
+description = "The response explains that the kernels compare keys with `PartialOrd` / IEEE operators (`<`, `==`, `>`), under which NaN is unequal to itself, while the hash join compares with total equality (`TotalEq` / `TotalHash` / `to_total_ord`) under which NaN equals NaN."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R55"
+name = "R55"
+description = "The response explains that `_sort_or_hash_inner` (and `sort_or_hash_left`) in `crates/polars-ops/src/frame/join/hash_join/sort_merge.rs` choose the sorted merge path because the left key is marked sorted ascending, neither key has missing values, and the key type is a primitive number."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R56"
+name = "R56"
+description = "The response explains why pipeline E's variants behave: an unsorted left key falls through to the hash join, `PartialOrd` is a total order on integers, a missing value makes `no_nulls` false, and a right side with more rows fails the size-factor test (`POLARS_JOIN_SORT_FACTOR`), each of which sends the join to the hash path or to correct comparisons."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R57"
+name = "R57"
+description = "The response traces pipeline E from the join call through `_inner_join_from_series` (or `materialize_left_join_from_series` for the left join) and the dispatcher to `par_sorted_merge_inner_no_nulls` / `par_sorted_merge_left` and on to the kernels."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R58"
+name = "R58"
+description = "The response lists `par_sorted_merge_inner_impl` and `par_sorted_merge_left_impl` in `sort_merge.rs` as the routines that call the two kernels."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R59"
+name = "R59"
+description = "The response states that in pipeline E the sorted marker is correct, because the left key really is ascending with NaN last, so the fault is the fast path's comparison and not a wrong marker."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R60"
+name = "R60"
+description = "The response proposes, for pipeline E, comparing with a total order in both kernels (for example `TotalOrd` with `tot_lt`, `tot_eq`, `tot_gt`), or excluding float keys from the sorted path."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-6", dimension = "outcome" }
+
+[[criterion]]
+id = "R61"
+name = "R61"
+description = "The agent reads, in the checkout, the sorted-merge join dispatcher and at least one of the sorted join kernels."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-6", dimension = "process" }
+
+[[criterion]]
+id = "R62"
+name = "R62"
+description = "The response claims that pipeline E's key column carries a wrong sorted marker, or attributes pipeline E to the same routine as another pipeline."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }

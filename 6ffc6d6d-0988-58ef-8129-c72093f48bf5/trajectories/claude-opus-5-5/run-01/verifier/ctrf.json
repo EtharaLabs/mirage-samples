@@ -1,0 +1,99 @@
+{
+  "results": {
+    "tool": {
+      "name": "rewardkit"
+    },
+    "summary": {
+      "tests": 16,
+      "passed": 15,
+      "failed": 1,
+      "skipped": 0,
+      "pending": 0,
+      "other": 0,
+      "start": 1793818498249,
+      "stop": 1793818498249
+    },
+    "tests": [
+      {
+        "name": "read_tuples_to_object_array_in_libs_lib",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__maybe_downcast_for_indexing_in_indexes_base",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_from_tuples_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__recode_for_new_levels_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__extract_level_codes_in_libs_index",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__inplace_method_in_core_generic",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read___iadd___in_core_generic",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_logical_op_in_ops_array_ops",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read_compare_in_core_generic",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_compare_in_core_frame",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_pivot_in_reshape_pivot",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_pivot_in_core_frame",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_tuples_to_object_array",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched__inplace_method",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "answer_grounded",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "modified_code_penalty",
+        "status": "passed",
+        "duration": 0
+      }
+    ]
+  }
+}

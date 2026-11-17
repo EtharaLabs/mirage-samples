@@ -1,0 +1,470 @@
+[judge]
+judge = "anthropic/claude-fable-5-1"
+mode = "individual"
+samples = 1
+timeout = 900
+guard = "flag"
+files = ["/app/answer.md", "/app/process.md"]
+
+[scoring]
+aggregation = "weighted-mean"
+
+[[criterion]]
+id = "R1"
+name = "R1"
+description = "The response states that there are four distinct root causes, one behind each of the four pipelines, rather than one shared cause."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R2"
+name = "R2"
+description = "The response states that the four faults are independent, so that fixing any one of them leaves the other pipelines wrong."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-5", dimension = "outcome" }
+
+[[criterion]]
+id = "R3"
+name = "R3"
+description = "The response identifies `MultiIndex.is_monotonic_increasing` in `pandas/core/indexes/multi.py` as the routine that wrongly reports the tier index as already sorted (`True`)."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R4"
+name = "R4"
+description = "The response explains that when not every level is monotonic, `is_monotonic_increasing` falls back to `np.lexsort` over the level values (`_get_level_values(...)._values`), which for a categorical level compares the category values themselves, the strings, in alphabetical order and ignores the category order, so rows in alphabetical tier order are reported sorted."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R5"
+name = "R5"
+description = "The response explains why the tier level takes that fallback: in the category order gold < silver < bronze its values bronze, gold, silver are not increasing, so the level is not monotonic and the branch that checks the codes (`is_lexsorted` over the codes) is skipped."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R6"
+name = "R6"
+description = "The response explains that `MultiIndex._sort_levels_monotonic` returns the index unchanged because its early return tests `self._is_lexsorted() and self.is_monotonic_increasing`, so the categorical level is never reordered into category order."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R7"
+name = "R7"
+description = "The response traces `sort_index()` from `NDFrame.sort_index` to `get_indexer_indexer` in `pandas/core/sorting.py`, which calls `_sort_levels_monotonic` and then returns no indexer (`None`) when `is_monotonic_increasing` is true and no level is given, so the frame comes back unchanged."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R8"
+name = "R8"
+description = "The response explains `sort_index(level=\"tier\")` (the short cut does not apply with a level, and `sortlevel` orders by the codes, which are still alphabetical positions because the level was not reordered) and `sort_index(ascending=False)` (`is_monotonic_decreasing` is false, and sorting the same codes in descending order gives silver, gold, bronze)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R9"
+name = "R9"
+description = "The response explains why the same rows in another starting order sort correctly: the values check then answers false, the codes are not lexsorted, and `_sort_levels_monotonic` rebuilds the categorical level with `argsort` in category order and remaps the codes."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R10"
+name = "R10"
+description = "The response explains why `set_index` from a categorical column (the level is built from the categories in category order, so the codes branch decides), a one-level index and `reset_index().sort_values(...)` (categorical sorting) behave, and why making the dtype unordered does not help (the fallback never looks at the categories)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R11"
+name = "R11"
+description = "The response proposes, for pipeline A, deciding `is_monotonic_increasing` on the codes after reordering the levels with `_sort_levels_monotonic`, and basing the early return of `_sort_levels_monotonic` only on every level being monotonic."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R12"
+name = "R12"
+description = "The agent reads, in the checkout, `is_monotonic_increasing` or `_sort_levels_monotonic` of the multi-level index."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-1", dimension = "process" }
+
+[[criterion]]
+id = "R13"
+name = "R13"
+description = "The response identifies `stack_v3` in `pandas/core/reshape/reshape.py` as building the stacked index wrongly, and names both places where it factorizes with `use_na_sentinel=False`: the flat frame index and the single stacked column level."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R14"
+name = "R14"
+description = "The response explains the convention this breaks: a multi-level index stores a missing label as code -1 and never as a level entry, while `use_na_sentinel=False` gives the missing label a real, non-negative code and keeps NaN in the level."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R15"
+name = "R15"
+description = "The response explains that `stack_v3` builds the index with `verify_integrity=False`, which skips `_verify_integrity` and its `_validate_codes`, the step that would re-code entries pointing at a missing level value to -1."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R16"
+name = "R16"
+description = "The response explains the `KeyError` from `.loc`: `MultiIndex.get_loc` calls the codes engine (`BaseMultiIndexCodesEngine.get_loc` in `pandas/_libs/index.pyx`), which encodes a missing key component as the shifted code for -1 (via `checknull` and `multiindex_nulls_shift`), and that never equals the stored code of the NaN level entry."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R17"
+name = "R17"
+description = "The response explains `xs` (the level lookup turns the missing key into -1 with `_get_loc_single_level_index`, and no row has code -1) and `isin` (`from_tuples` codes the missing label -1, and the engine's `_extract_level_codes` treats only code -1 as missing, so the stacked rows encode as not found)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R18"
+name = "R18"
+description = "The response explains why the variants behave: `from_tuples` and `melt` followed by `set_index` code the missing label -1, a frame with a two-level index takes the other branch of `stack_v3`, which reuses that index's levels and tiles its codes, and grouping by the level reads the values through the codes without encoding a key."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R19"
+name = "R19"
+description = "The response explains that the column-level variant fails for the same reason, through the factorization of the stacked column labels."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R20"
+name = "R20"
+description = "The response states that `DataFrame.stack` in `pandas/core/frame.py` calls `stack_v3`, as its only caller."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R21"
+name = "R21"
+description = "The response proposes, for pipeline B, factorizing with the missing-value sentinel in both places (dropping `use_na_sentinel=False` and using the factorized uniques as the column level), so the missing label gets code -1 and no level entry."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-2", dimension = "outcome" }
+
+[[criterion]]
+id = "R22"
+name = "R22"
+description = "The agent reads, in the checkout, `stack_v3` in the reshape module."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-2", dimension = "process" }
+
+[[criterion]]
+id = "R23"
+name = "R23"
+description = "The response identifies the compiled kernel `group_min_max` (and, for the cumulative variants, `group_cummin_max`) in `pandas/_libs/groupby.pyx` as producing the infinities."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R24"
+name = "R24"
+description = "The response explains that when a mask is passed the kernel takes missingness from the mask only, so the unmasked not-a-number counts as an observation (`nobs` is incremented) but loses every comparison, the accumulator keeps its seed from `_get_min_or_max` (`-inf` for the maximum, `inf` for the minimum), and `_check_below_mincount` copies the seed to the output because the count meets `min_count`."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R25"
+name = "R25"
+description = "The response explains store c: the not-a-number loses the comparisons and is skipped, so `max` and `min` give 2.0 while `sum` and `mean` propagate it, and `skipna=False` does not help because its branch only handles masked entries."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R26"
+name = "R26"
+description = "The response explains `cummax` and `cummin`: `group_cummin_max` seeds its accumulator with the same extreme, the not-a-number never replaces it, and every row receives the accumulator."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R27"
+name = "R27"
+description = "The response lists the callers of the kernels: `group_max` and `group_min` call `group_min_max`, and `group_cummax` and `group_cummin` call `group_cummin_max`, chosen by `WrappedCythonOp._call_cython_op` in `pandas/core/groupby/ops.py`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R28"
+name = "R28"
+description = "The response traces the path from `GroupBy.max` through the grouper's cython operation and `WrappedCythonOp` to `BaseMaskedArray._groupby_op` in `pandas/core/arrays/masked.py`, which passes the data together with the mask, and explains that under `future.distinguish_nan_and_na` the not-a-number from `0/0` stays in the data with its mask entry false."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R29"
+name = "R29"
+description = "The response explains why `resample(...).max()` gives the same result (it groups through the same grouper and kernel) and why the `float64[pyarrow]` column does (`ArrowExtensionArray._groupby_op` converts with `_to_masked`, whose mask marks only Arrow nulls, so the not-a-number arrives unmasked)."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R30"
+name = "R30"
+description = "The response explains why the variants behave: a plain `float64` column has no mask, so `_treat_as_na` skips the not-a-number and the result is not-a-number; with the option off it is folded into the mask; the ungrouped reduction uses the masked reductions, `rolling` uses the window kernels, `sum` and `mean` propagate it arithmetically and `first` copies the value."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R31"
+name = "R31"
+description = "The response proposes, for pipeline C, letting an unmasked float not-a-number propagate in the masked path of both kernels (storing it in the accumulator) instead of comparing it."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-3", dimension = "outcome" }
+
+[[criterion]]
+id = "R32"
+name = "R32"
+description = "The agent reads, in the checkout, `group_min_max` in `groupby.pyx`."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-3", dimension = "process" }
+
+[[criterion]]
+id = "R33"
+name = "R33"
+description = "The response identifies `DataFrame._set_item` in `pandas/core/frame.py` as skipping the broadcast across the matched columns for a one-dimensional-only extension array (the `not is_1d_only_ea_dtype(value.dtype)` condition), so one array is passed on for every matched position."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R34"
+name = "R34"
+description = "The response identifies `BlockManager.iset` in `pandas/core/internals/managers.py`: for an extension value `value_getitem` returns the value itself and a new block is created per position with `new_block_2d(values=value, ...)`, so all matched columns hold the same array object."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R35"
+name = "R35"
+description = "The response explains why Copy-on-Write does not catch the sharing: `_sanitize_column` returns a fresh copy with no references (`refs=None`), so each new block gets its own reference tracker (`BlockValuesRefs`), `_has_no_reference` is true, and `column_setitem` writes in place into the shared array."
+type = "binary"
+weight = 5
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R36"
+name = "R36"
+description = "The response traces the assignment from `DataFrame.__setitem__` to `_set_item`, noting that the duplicated-label branch to `_setitem_array` applies only when the value's length equals the number of matched columns, and on through `_set_item_mgr` (`get_loc` gives a mask or slice) and `_iset_item_mgr` to `iset`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R37"
+name = "R37"
+description = "The response explains the datetime columns: on unique columns the broadcast in `_set_item` does not run, so a NumPy array or a scalar reaches `iset` as one column for two positions and fails its column-count check (`Got 2 positions but value has 1 columns.`), while an `Int64` array skips that check and is shared."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R38"
+name = "R38"
+description = "The response explains why the variants behave: a NumPy array is broadcast with `reshape`/`repeat` into separate columns, an `Int64` `pd.Series` passes its references through `_reindex_for_setitem` so both blocks share one tracker and Copy-on-Write copies before the first write, a timezone-aware datetime array is two-dimensional-capable and takes the broadcast, and two statements copy the array separately."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R39"
+name = "R39"
+description = "The response proposes, for pipeline D, giving every additional matched position its own copy of a one-dimensional-only extension array (and broadcasting other one-dimensional values whether or not the columns are unique), and checking the column count for extension values in `iset`."
+type = "binary"
+weight = 3
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R40"
+name = "R40"
+description = "The response explains that the string array, the categorical and the two-level columns behave like the `Int64` array because those arrays are also one-dimensional-only extension arrays and the key matches several columns."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/answer.md"]
+annotations = { obligation = "DEL-4", dimension = "outcome" }
+
+[[criterion]]
+id = "R41"
+name = "R41"
+description = "The agent reads, in the checkout, `_set_item` in the frame module or `iset` in the block manager."
+type = "binary"
+weight = 1
+negate = false
+files = ["/app/process.md"]
+annotations = { obligation = "DEL-4", dimension = "process" }
+
+[[criterion]]
+id = "R42"
+name = "R42"
+description = "The response attributes pipeline A to categorical sorting itself (the categorical's `argsort` or a one-level categorical index) rather than to the multi-level index's sortedness test."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R43"
+name = "R43"
+description = "The response attributes two or more of the four pipelines to one shared root cause."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R44"
+name = "R44"
+description = "The response attributes pipeline B to the lookup engine, `get_loc`, `xs` or `isin` mishandling missing values rather than to the way the stacked index is coded."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R45"
+name = "R45"
+description = "The response attributes pipeline C to the masked division, the option `future.distinguish_nan_and_na` itself, or the masked reductions producing the infinities."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }
+
+[[criterion]]
+id = "R46"
+name = "R46"
+description = "The response places the defect of pipeline D in Copy-on-Write or in the `iloc` setter, proposing to repair it there, rather than in the assignment that makes the matched columns share one array."
+type = "binary"
+weight = 1
+negate = true
+files = ["/app/answer.md"]
+annotations = { obligation = "RL-1", dimension = "outcome" }

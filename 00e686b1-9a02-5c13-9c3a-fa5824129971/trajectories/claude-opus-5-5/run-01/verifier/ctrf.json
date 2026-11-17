@@ -1,0 +1,124 @@
+{
+  "results": {
+    "tool": {
+      "name": "rewardkit"
+    },
+    "summary": {
+      "tests": 21,
+      "passed": 20,
+      "failed": 1,
+      "skipped": 0,
+      "pending": 0,
+      "other": 0,
+      "start": 1794681253013,
+      "stop": 1794681253013
+    },
+    "tests": [
+      {
+        "name": "read_is_monotonic_increasing_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__sort_levels_monotonic_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_get_indexer_indexer_in_core_sorting",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_sortlevel_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_stack_v3_in_reshape_reshape",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "opened_libs_index",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__validate_codes_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_isin_in_indexes_multi",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_group_min_max_in_libs_groupby",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_group_cummin_max_in_libs_groupby",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__call_cython_op_in_groupby_ops",
+        "status": "failed",
+        "duration": 0
+      },
+      {
+        "name": "read__groupby_op_in_arrays_masked",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__to_masked_in_arrow_array",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__set_item_in_core_frame",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_iset_in_internals_managers",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read__sanitize_column_in_core_frame",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "read_column_setitem_in_internals_managers",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_use_na_sentinel",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "searched_is_1d_only_ea_dtype",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "answer_grounded",
+        "status": "passed",
+        "duration": 0
+      },
+      {
+        "name": "modified_code_penalty",
+        "status": "passed",
+        "duration": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+schema_version = "1.4"
+reward_type = "bounded_continuous"
+
+artifacts = [
+    "/workspace/answer.md",
+    "/logs/agent/trajectory.json",
+    "/logs/agent/answer.md",
+    { source = "/logs/agent/sessions", destination = "agent-sessions" },
+    { source = "/logs/agent/completions", destination = "agent-completions" },
+    "/logs/artifacts/agent.patch",
+]
+
+[task]
+name = "mirage/00e686b1-9a02-5c13-9c3a-fa5824129971"
+version = "1.0.0"
+description = "Read-only issue localization in pandas at a commit where four separate defects make data pipelines return quietly wrong results: a ticket reports four pipelines (sort_index on a multi-level index whose tier level is an ordered categorical, lookups of a missing label after stack, groupby max/min/cummax/cummin over not-a-number values in a nullable float column with NaN kept apart from missing, and an Int64 array assigned to a label that matches two columns) whose results are wrong without any error; find how many root causes there are, the routine and file behind each, why each harmless variant behaves, and how each wrong result comes out of the routines that trust the faulty decision."
+authors = [{ name = "shreyansh.parashar", email = "shreyansh.parashar@ethara.ai" }]
+keywords = ["python", "cython", "issue_localization", "pandas", "multiindex", "groupby", "copy-on-write", "multi-cause", "read-only"]
+
+[metadata]
+instance_id = "pandas-silent-results-cluster"
+harbor_commit = "b53b8134e1241686dca7759af188f987ecc48e8b"
+repo = "pandas-dev/pandas"
+base_commit = "03e5d938adbd3ec9314c326b002170b73bde2c9f"
+language = "python"
+family = "issue_localization"
+category = "software-engineering"
+difficulty = "hard"
+null_floor = 0.0
+discrimination_weight = 0.5
+reward_type = "bounded_continuous"
+pass-rates = []
+difficulty_rationale = "Four independent defects in four layers of the library: the sortedness test of a multi-level index that lexsorts category values as strings, so sort_index skips the sort (indexes/multi.py, consumed by sorting.py get_indexer_indexer), the stacked-index construction that factorizes labels with use_na_sentinel=False and verify_integrity=False, so every missing-label lookup misses (reshape/reshape.py, consumed by the codes engine in _libs/index.pyx), the compiled group min/max kernels that take missingness from the mask only and keep their infinite seed for an unmasked not-a-number (_libs/groupby.pyx), and column assignment that gives one extension array to every column a key matches with private reference trackers, so Copy-on-Write never sees the sharing (frame.py, internals/managers.py). The ticket gives symptoms only and does not say how many causes there are; every cause surfaces in routines far from the deciding one, every pipeline has harmless variants that must be explained, the checkout cannot be built or imported in the task image, and all four fixes were merged after the frontier models' training cutoff."
+solution_rationale = "MultiIndex.is_monotonic_increasing falls back to np.lexsort over the level values when a level is not monotonic, and a categorical level's values sort as strings, so it reports the alphabetical tier index sorted; _sort_levels_monotonic returns early on that answer and get_indexer_indexer returns no indexer. stack_v3 factorizes the flat index and the stacked column level with use_na_sentinel=False and builds the MultiIndex with verify_integrity=False, so NaN is a level entry with a real code while BaseMultiIndexCodesEngine.get_loc, _get_loc_single_level_index and isin encode a missing key as code -1. group_min_max and group_cummin_max count an unmasked NaN as an observation that loses every comparison, so the inf/-inf seed survives. DataFrame._set_item skips the broadcast for one-dimensional-only extension arrays and BlockManager.iset creates one block per matched position on the same array, each with its own BlockValuesRefs, so column_setitem writes in place into the shared array."
+verification_rationale = "A separate verifier scores the agent's read-only investigation twice. The deterministic channel replays the agent's own tool calls and credits only definitions and files actually displayed from the checkout, plus searches, citation grounding and a penalty for any source change. A 46-criterion judged rubric scores the explanation against a reference built from the base commit, the four upstream fixes and a reproduction of every pipeline on a wheel built from the base commit (46 checked claims), about a quarter of its weight per root cause, weighted four to one over the deterministic channel."
+[verifier]
+timeout_sec = 1800.0
+environment_mode = "separate"
+network_mode = "public"
+
+[verifier.env]
+HG_INSTANCE_ID = "pandas-silent-results-cluster"
+ANTHROPIC_API_BASE = "${ANTHROPIC_API_BASE:-https://api.anthropic.com}"
+ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY:-}"
+
+[verifier.environment]
+network_mode = "public"
+build_timeout_sec = 1200
+cpus = 2
+memory_mb = 4096
+storage_mb = 8192
+gpus = 0
+
+[[verifier.collect]]
+command = "git -C /workspace/pandas-dev__pandas add -A && git -C /workspace/pandas-dev__pandas diff --cached > /logs/artifacts/agent.patch"
+
+[agent]
+timeout_sec = 3600
+user = "1000:1000"
+network_mode = "allowlist"
+allowed_hosts = ["docs.python.org"]
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 3600
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
+os = "linux"
+workdir = "/workspace"
+
+[upstream_provenance]
+origin = "derived"
+provenance_date = "2026-11-04"
+source_kind = "public_repository"
+upstream_benchmark = "pandas PRs #70963 (b2c790724d99), #71031 (b21d122365e9), #71227 (808b0672c089) and #71098 (073f8e3c85f4), for issues #47607, #40366 and #59106 (#71098 links no issue)"
+license = "BSD-3-Clause"
+modifications = [
+    "checkout pinned at 03e5d938adbd, the sole parent of ee4989f150f8 (PR #71033) and a main-branch commit from before all four fixes, so all four defects are live",
+    "comments and docstrings stripped from Python and Cython sources, test files removed, and version history replaced by a single base commit",
+]
+
+[upstream_provenance.source]
+canonical_repo = "https://github.com/pandas-dev/pandas"
+fork_ancestry_digest = "sha256:4902f17f4c734a9219aee7477c4563c62d0f63a10e1a69ed62dc1501b8087600"
+base_commit = "03e5d938adbd3ec9314c326b002170b73bde2c9f"
+event_timestamp = "2026-10-17T17:50:22Z"
