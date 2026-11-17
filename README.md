@@ -28,7 +28,7 @@ This repository holds the five-task sample. All five are read-only, multi-cause 
 | Platforms | linux/amd64, linux/arm64 |
 | Average handling time (AHT) | 960 minutes per task |
 | Agent | OpenHands 0.62.0 with `claude-opus-5-5` (Claude Opus 5.5) |
-| Judge | Claude Fable 5.1 (`anthropic/claude-fable-5-1`) |
+| Judge | Claude Fable 5.1 (`anthropic/claude-fable-5-1`) on 3 tasks, `openai/gpt-6.1-sol` on 2 |
 | Reward | Continuous from 0 to 1: 0.8 × rubric + 0.2 × pytest |
 | Runs | 1 per task |
 | Mean reward | 0.3107 |
@@ -46,18 +46,18 @@ This repository holds the five-task sample. All five are read-only, multi-cause 
 
 ## Trials
 
-Each task was run once with OpenHands 0.62.0 driving Claude Opus 5.5 and scored by the task's own verifier, with Claude Fable 5.1 judging the rubric. Trials are stored in each task's `trials/opus-5-5/run-01/`.
+Each task was run once with OpenHands 0.62.0 driving Claude Opus 5.5 and scored by the task's own verifier. The rubric was judged by Claude Fable 5.1 for three tasks and by `openai/gpt-6.1-sol` for `6ffc6d6d` and `d5a207d9`. Trials are stored in each task's `trials/opus-5-5/run-01/`.
 
 | Task | Reward | `pytest` | `rubric` | Rubric criteria met | Cost (USD) | Agent time |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| [`00e686b1-9a02-5c13-9c3a-fa5824129971`](00e686b1-9a02-5c13-9c3a-fa5824129971/trials/opus-5-5/) | 0.3575 | 0.9706 | 0.2042 | 13 of 46 | 5.80 | 37m 50s |
+| [`00e686b1-9a02-5c13-9c3a-fa5824129971`](00e686b1-9a02-5c13-9c3a-fa5824129971/trials/opus-5-5/) | 0.3575 | 0.9706 | 0.2042 | 13 of 46 | 5.80 | 37m 50s (stopped) |
 | [`0d205e9a-9537-5ba9-817a-1132725ee409`](0d205e9a-9537-5ba9-817a-1132725ee409/trials/opus-5-5/) | 0.2249 | 0.9024 | 0.0556 | 9 of 62 | 11.73 | 90m 0s (timeout) |
 | [`6ffc6d6d-0988-58ef-8129-c72093f48bf5`](6ffc6d6d-0988-58ef-8129-c72093f48bf5/trials/opus-5-5/) | 0.4189 | 0.9615 | 0.2832 | 14 of 37 | 7.26 | 60m 0s (timeout) |
 | [`78de1d0b-9e9d-584d-aeea-b34efee7cc2a`](78de1d0b-9e9d-584d-aeea-b34efee7cc2a/trials/opus-5-5/) | 0.2151 | 0.7568 | 0.0797 | 11 of 46 | 9.98 | 60m 0s (timeout) |
 | [`d5a207d9-6e08-5c5c-99c1-e0f8e306b11d`](d5a207d9-6e08-5c5c-99c1-e0f8e306b11d/trials/opus-5-5/) | 0.3373 | 1.0000 | 0.1716 | 11 of 46 | 14.21 | 90m 0s (timeout) |
 | **mean** | **0.3107** | **0.9183** | **0.1589** | | **9.80** | **67m 34s** |
 
-Reward is 0.8 × rubric + 0.2 × pytest, where `pytest` is the deterministic channel and `rubric` the judged one. Four runs reached the task's agent timeout of 60 or 90 minutes and were scored as they stood, so their agent time is that limit. Cost is the list price of each run's tokens.
+Reward is 0.8 × rubric + 0.2 × pytest, where `pytest` is the deterministic channel and `rubric` the judged one. Four runs reached the task's agent timeout of 60 or 90 minutes, so their agent time is that limit. The fifth, `00e686b1`, stopped after 37m 50s when its model requests began failing authentication. No run reached the agent's finish action, so each was scored on the work it had done when it stopped. Cost is the list price of each run's tokens.
 
 Each trial folder is Harbor's trial output:
 
