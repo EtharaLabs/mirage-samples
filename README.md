@@ -4,7 +4,7 @@
 
 <p align="center"><b>The mirage samples lane: 5 of 30 Harbor task bundles.</b></p>
 
-<p align="center"><a href="#task-overview"><img src="https://img.shields.io/badge/bundles-5_of_30-845EF7" alt="bundles: 5 of 30"></a> <a href="#task-overview"><img src="https://img.shields.io/badge/sealed-0-845EF7" alt="sealed: 0"></a> <a href="#task-overview"><img src="https://img.shields.io/badge/measured-5_of_5-845EF7" alt="measured: 5 of 5"></a></p>
+<p align="center"><a href="#task-overview"><img src="https://img.shields.io/badge/bundles-5_of_30-845EF7" alt="bundles: 5 of 30"></a> <a href="#task-overview"><img src="https://img.shields.io/badge/sealed-5-845EF7" alt="sealed: 5"></a> <a href="#task-overview"><img src="https://img.shields.io/badge/measured-5_of_5%2C_5_unattested-845EF7" alt="measured: 5 of 5, 5 unattested"></a></p>
 
 <p align="center"><sub><a href="#research-paper">Research paper</a> | <a href="#research-problem-statement">Research problem statement</a> | <a href="#research-experimentation-design">Research experimentation design</a> | <a href="#task-overview">Task overview</a> | <a href="#harbor-format-walkthrough">Harbor format walkthrough</a> | <a href="#contact">Contact</a></sub></p>
 
@@ -29,25 +29,27 @@ Each bundle is one Harbor task in a directory named by its content-derived uuid5
 | Property | Value |
 | --- | --- |
 | Bundles | 5 of 30 |
-| Sealed | 0 of 5 |
-| Registrations | unregistered (5) |
+| Sealed | 5 of 5 |
+| Registrations | sample (5) |
 | Audit verdicts | none (5) |
 | Harbor schema | 1.4 (5) |
 
 Pass rates are measured by the trials recorded in each bundle, not by a signed pilot, and no tier is claimed.
 
+A model marked unattested counts trials the bundle held when it was sealed, and no execution attestation binds them.
+
 | Bundle | Model | Trials | Successes | pass@1 | pass@5 |
 | --- | --- | --- | --- | --- | --- |
-| 00e686b1-9a02-5c13-9c3a-fa5824129971 | claude-opus-5-5 | 1 | 0 | 0.00 | - |
-| 0d205e9a-9537-5ba9-817a-1132725ee409 | claude-opus-5-5 | 1 | 0 | 0.00 | - |
-| 6ffc6d6d-0988-58ef-8129-c72093f48bf5 | claude-opus-5-5 | 1 | 0 | 0.00 | - |
-| 78de1d0b-9e9d-584d-aeea-b34efee7cc2a | claude-opus-5-5 | 1 | 0 | 0.00 | - |
-| d5a207d9-6e08-5c5c-99c1-e0f8e306b11d | claude-opus-5-5 | 1 | 0 | 0.00 | - |
+| 00e686b1-9a02-5c13-9c3a-fa5824129971 | claude-opus-5-5 (unattested) | 1 | 0 | 0.00 | - |
+| 0d205e9a-9537-5ba9-817a-1132725ee409 | claude-opus-5-5 (unattested) | 1 | 0 | 0.00 | - |
+| 6ffc6d6d-0988-58ef-8129-c72093f48bf5 | claude-opus-5-5 (unattested) | 1 | 0 | 0.00 | - |
+| 78de1d0b-9e9d-584d-aeea-b34efee7cc2a | claude-opus-5-5 (unattested) | 1 | 0 | 0.00 | - |
+| d5a207d9-6e08-5c5c-99c1-e0f8e306b11d | claude-opus-5-5 (unattested) | 1 | 0 | 0.00 | - |
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#131a33","primaryTextColor":"#e8ecff","primaryBorderColor":"#845EF7","lineColor":"#22d3ee","fontFamily":"monospace"}}}%%
 xychart-beta
-    x-axis ["claude-opus-5-5"]
+    x-axis ["claude-opus-5-5 (unattested)"]
     y-axis "pass@1" 0 --> 1
     bar [0.00]
 ```
@@ -64,11 +66,11 @@ The verdict is the audit outcome recorded at the sealed digest, and `none` means
 
 | uuid | Verdict | Sealed digest | Stream |
 | --- | --- | --- | --- |
-| 00e686b1-9a02-5c13-9c3a-fa5824129971 | none | absent | none |
-| 0d205e9a-9537-5ba9-817a-1132725ee409 | none | absent | none |
-| 6ffc6d6d-0988-58ef-8129-c72093f48bf5 | none | absent | none |
-| 78de1d0b-9e9d-584d-aeea-b34efee7cc2a | none | absent | none |
-| d5a207d9-6e08-5c5c-99c1-e0f8e306b11d | none | absent | none |
+| 00e686b1-9a02-5c13-9c3a-fa5824129971 | none | `d60b2ee81f9e2a13e16decd2ca5161b3e0f17695570687a67cb19378086ade0e` | forge-krishnanshr-20261126t181343z-bb1e4e |
+| 0d205e9a-9537-5ba9-817a-1132725ee409 | none | `25bbc4704ba0dea381cb61cff7007d0027dfca746c557e0c2184983882c7c8b4` | forge-krishnanshr-20261126t181343z-bb1e4e |
+| 6ffc6d6d-0988-58ef-8129-c72093f48bf5 | none | `a8ae3d9506b75311e1a3f49faa4a183339f122c255b49b93401b67927787e36d` | forge-krishnanshr-20261126t181343z-bb1e4e |
+| 78de1d0b-9e9d-584d-aeea-b34efee7cc2a | none | `0841e0dd8f2100b83c7883d4b71a776d91626084f16ca98f20da960487a4dfd4` | forge-krishnanshr-20261126t181343z-bb1e4e |
+| d5a207d9-6e08-5c5c-99c1-e0f8e306b11d | none | `a0cc14065933e36d4b1260e4f331912d4480ab3c96904d288a47b743ddbcc74d` | forge-krishnanshr-20261126t181343z-bb1e4e |
 
 | Keyword | Bundles |
 | --- | --- |
@@ -93,11 +95,11 @@ The verdict is the audit outcome recorded at the sealed digest, and `none` means
 
 | Bundle | Task | Keywords | Registration | Sealed at |
 | --- | --- | --- | --- | --- |
-| [`00e686b1-9a02-5c13-9c3a-fa5824129971`](00e686b1-9a02-5c13-9c3a-fa5824129971/) | `mirage/00e686b1-9a02-5c13-9c3a-fa5824129971` | copy-on-write, cython, groupby, issue_localization, multi-cause, multiindex, pandas, python, read-only | unregistered | unsealed |
-| [`0d205e9a-9537-5ba9-817a-1132725ee409`](0d205e9a-9537-5ba9-817a-1132725ee409/) | `mirage/0d205e9a-9537-5ba9-817a-1132725ee409` | issue_localization, multi-cause, polars, python, read-only, rust, sorted-flag | unregistered | unsealed |
-| [`6ffc6d6d-0988-58ef-8129-c72093f48bf5`](6ffc6d6d-0988-58ef-8129-c72093f48bf5/) | `mirage/6ffc6d6d-0988-58ef-8129-c72093f48bf5` | cython, dtypes, issue_localization, multi-cause, multiindex, pandas, python, read-only, reshape | unregistered | unsealed |
-| [`78de1d0b-9e9d-584d-aeea-b34efee7cc2a`](78de1d0b-9e9d-584d-aeea-b34efee7cc2a/) | `mirage/78de1d0b-9e9d-584d-aeea-b34efee7cc2a` | casting, dtypes, issue_localization, joins, multi-cause, polars, python, read-only, rust | unregistered | unsealed |
-| [`d5a207d9-6e08-5c5c-99c1-e0f8e306b11d`](d5a207d9-6e08-5c5c-99c1-e0f8e306b11d/) | `mirage/d5a207d9-6e08-5c5c-99c1-e0f8e306b11d` | issue_localization, multi-cause, polars, python, query-optimizer, read-only, rust, sql | unregistered | unsealed |
+| [`00e686b1-9a02-5c13-9c3a-fa5824129971`](00e686b1-9a02-5c13-9c3a-fa5824129971/) | `mirage/00e686b1-9a02-5c13-9c3a-fa5824129971` | copy-on-write, cython, groupby, issue_localization, multi-cause, multiindex, pandas, python, read-only | sample | 2026-11-26T18:27:31Z |
+| [`0d205e9a-9537-5ba9-817a-1132725ee409`](0d205e9a-9537-5ba9-817a-1132725ee409/) | `mirage/0d205e9a-9537-5ba9-817a-1132725ee409` | issue_localization, multi-cause, polars, python, read-only, rust, sorted-flag | sample | 2026-11-26T18:28:11Z |
+| [`6ffc6d6d-0988-58ef-8129-c72093f48bf5`](6ffc6d6d-0988-58ef-8129-c72093f48bf5/) | `mirage/6ffc6d6d-0988-58ef-8129-c72093f48bf5` | cython, dtypes, issue_localization, multi-cause, multiindex, pandas, python, read-only, reshape | sample | 2026-11-26T18:28:46Z |
+| [`78de1d0b-9e9d-584d-aeea-b34efee7cc2a`](78de1d0b-9e9d-584d-aeea-b34efee7cc2a/) | `mirage/78de1d0b-9e9d-584d-aeea-b34efee7cc2a` | casting, dtypes, issue_localization, joins, multi-cause, polars, python, read-only, rust | sample | 2026-11-26T18:29:05Z |
+| [`d5a207d9-6e08-5c5c-99c1-e0f8e306b11d`](d5a207d9-6e08-5c5c-99c1-e0f8e306b11d/) | `mirage/d5a207d9-6e08-5c5c-99c1-e0f8e306b11d` | issue_localization, multi-cause, polars, python, query-optimizer, read-only, rust, sql | sample | 2026-11-26T18:29:44Z |
 
 ## Harbor format walkthrough
 
